@@ -19,6 +19,7 @@ export const Icons = {
   bookOpen: SunMedium,
   repos: SunMedium,
   post: SunMedium,
+  user: SunMedium,
   gitHub: ({ ...props }: LucideProps) => (
     <svg
       aria-hidden="true"

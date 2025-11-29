@@ -71,8 +71,8 @@ export function DashboardSidebar({ links }: DashboardSidebarProps) {
             <div className="flex h-full max-h-screen flex-1 flex-col gap-2">
               <div className="flex h-14 items-center p-4 lg:h-[60px]">
                 {isSidebarExpanded ? <div className="flex flex-row items-center gap-2">
-                  <Icons.logo />
-                  <Label className="text-md font-bold">RepoVox</Label>
+                  <Icons.logo className="size-6" />
+                  <Label className="text-md font-bold">{siteConfig.name}</Label>
                 </div> : null}
                 <Button
                   variant="ghost"

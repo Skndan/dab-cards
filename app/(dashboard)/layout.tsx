@@ -72,9 +72,9 @@ export default async function Dashboard({ children }: ProtectedLayoutProps) {
   return (
     <SubscriptionProvider>
 
-      <div className="flex justify-center bg-green-200 p-1 dark:bg-green-700">
+      {/* <div className="flex justify-center bg-green-200 p-1 dark:bg-green-700">
         <Label className="text-center">RepoVox is under Beta!💚 Please reach out to repovox.official@gmail.com for queries😁</Label>
-      </div>
+      </div> */}
 
       <div className="relative flex min-h-screen w-full">
         <DashboardSidebar links={filteredLinks} />

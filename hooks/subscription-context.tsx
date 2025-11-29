@@ -1,7 +1,7 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { keycloakInstance, KeycloakUser } from "@/lib/auth/keycloak";
 import axios from "axios";
 
 const SubscriptionContext = createContext<SubscriptionContextValue>({
@@ -9,13 +9,15 @@ const SubscriptionContext = createContext<SubscriptionContextValue>({
   isLoading: true,
 });
 
-export function SubscriptionProvider({ children }) {
-  const { data: session } = useSession();
+export function SubscriptionProvider({ children }: React.PropsWithChildren) {
+  const [session, setSession] = useState<{ user: KeycloakUser } | null>(
+    keycloakInstance.authenticated ? { user: keycloakInstance.tokenParsed as KeycloakUser } : null
+  );
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (session?.user?.id) {
+    if (session?.user) {
       // Fetch subscription data
       const fetchSubscription = async () => {
         const subscription = await axios.get(`/api/subscription`);

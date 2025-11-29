@@ -13,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"; 
+import { UserAvatar } from "../shared/user-avatar";
 
 export function UserAccountNav() {
   // const { data: session } = useSession();
@@ -34,10 +35,10 @@ export function UserAccountNav() {
     return (
       <Drawer.Root open={open} onClose={closeDrawer}>
         <Drawer.Trigger onClick={() => setOpen(true)}>
-          {/* <UserAvatar
+          <UserAvatar
             user={{ name: user.name || null, image: user.image || null }}
             className="size-9 border"
-          /> */}
+          />
         </Drawer.Trigger>
         <Drawer.Portal>
           <Drawer.Overlay
@@ -51,12 +52,12 @@ export function UserAccountNav() {
 
             <div className="flex items-center justify-start gap-2 p-2">
               <div className="flex flex-col">
-                {/* {user.name && <p className="font-medium">{user.name}</p>}
+                {user.name && <p className="font-medium">{user.name}</p>}
                 {user.email && (
                   <p className="w-[200px] truncate text-muted-foreground">
                     {user?.email}
                   </p>
-                )} */}
+                )}
               </div>
             </div>
 
