@@ -108,7 +108,7 @@ export default async function ContactsPage() {
                     {contact.company || '-'}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                    {contact.sourceCard?.name || 'Direct'}
+                    {/* {contact.sourceCard?.name || 'Direct'} */}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                     {new Date(contact.createdAt).toLocaleDateString()}

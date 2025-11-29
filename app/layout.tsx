@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
 import { Gabarito, Inter } from "next/font/google";
-import { cn } from "@/lib/utils";
-import "./globals.css";
-import { SiteFooter } from "@/components/layout/site-footer";
-import { SiteHeader } from "@/components/layout/site-header";
-import { ThemeProvider } from "@/components/theme-provider";
+import { cn } from "@/lib/utils"; 
+import "@/styles/globals.css";
 
 import { siteConfig } from "@/config/site";
+import Providers from "@/components/layout/providers";
 
 const inter = Gabarito({
   subsets: ["latin"],
@@ -102,8 +100,10 @@ export default function RootLayout({
       >
         {/* Background Gradient */}
         {/* <div className="absolute left-1/2 top-0 -z-10 h-[1000px] w-[1000px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-3xl" /> */}
-
-        <ThemeProvider
+        <Providers>
+          {children}
+        </Providers>
+        {/* <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
@@ -112,7 +112,7 @@ export default function RootLayout({
           <SiteHeader />
           <main className="flex-1 pt-0">{children}</main>
           <SiteFooter />
-        </ThemeProvider>
+        </ThemeProvider> */}
       </body>
     </html>
   );

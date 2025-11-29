@@ -81,5 +81,6 @@ export interface KeycloakUser {
   preferred_username: string;
   given_name?: string;
   family_name?: string;
+  role?: string;
 }
 

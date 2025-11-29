@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 import { verifyToken, refreshAccessToken, type KeycloakUser } from './keycloak';
+import { cache } from 'react';
 
 const ACCESS_TOKEN_COOKIE = 'access_token';
 const REFRESH_TOKEN_COOKIE = 'refresh_token';
@@ -83,3 +84,10 @@ export async function clearSession() {
   cookieStore.delete(REFRESH_TOKEN_COOKIE);
 }
 
+export const getCurrentUser = cache(async () => {
+  const session = await getSession();
+  if (!session?.user) {
+    return undefined;
+  }
+  return session.user;
+});

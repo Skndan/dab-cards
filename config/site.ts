@@ -1,10 +1,11 @@
 import { env } from "@/env"
 
 export const siteConfig = {
-  name: "DabCardx",
+  name: "NetworkOs",
   description: "AI-Powered Digital Business Card Platform",
   url: env.NEXT_PUBLIC_APP_URL,
   ogImage: `${env.NEXT_PUBLIC_APP_URL}/opengraph-image.jpg`,
+  login: "/login",
   links: {
     twitter: "https://twitter.com/dabcards",
     github: "https://github.com/dabcards",
