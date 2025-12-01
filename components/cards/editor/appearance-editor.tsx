@@ -22,12 +22,35 @@ export function AppearanceEditor({ data, onChange }: AppearanceEditorProps) {
   };
 
   const fonts = [
+    // Core
     { name: "Inter", value: "Inter" },
     { name: "Roboto", value: "Roboto" },
-    { name: "Playfair Display", value: "Playfair Display" },
     { name: "Montserrat", value: "Montserrat" },
     { name: "Open Sans", value: "Open Sans" },
-    { name: "Gabarito", value: "Gabarito" },
+    { name: "Playfair Display", value: "Playfair Display" },
+
+    // Professional
+    { name: "Poppins", value: "Poppins" },
+    { name: "Lato", value: "Lato" },
+    { name: "Nunito", value: "Nunito" },
+    { name: "Source Sans Pro", value: "Source Sans Pro" },
+    { name: "Work Sans", value: "Work Sans" },
+    { name: "Manrope", value: "Manrope" },
+    { name: "DM Sans", value: "DM Sans" },
+    { name: "Mulish", value: "Mulish" },
+    { name: "Raleway", value: "Raleway" },
+    { name: "Urbanist", value: "Urbanist" },
+
+    // Premium / Luxury / Modern Branding
+    { name: "Cormorant Garamond", value: "Cormorant Garamond" },
+    { name: "Bodoni Moda", value: "Bodoni Moda" },
+    { name: "Merriweather", value: "Merriweather" },
+    { name: "Libre Baskerville", value: "Libre Baskerville" },
+    { name: "Cinzel", value: "Cinzel" },
+    { name: "Spectral", value: "Spectral" },
+    { name: "Sora", value: "Sora" },
+    { name: "Cabinet Grotesk", value: "Cabinet Grotesk" }, // popular modern grotesk
+    { name: "General Sans", value: "General Sans" },      // highly trending in SaaS
   ];
 
   const buttonStyles = [
@@ -117,37 +140,6 @@ export function AppearanceEditor({ data, onChange }: AppearanceEditorProps) {
               {style.name}
             </Button>
           ))}
-        </div>
-      </div>
-
-      {/* Background Image */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">Background Image</h3>
-        <div
-          className="relative flex aspect-video cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 bg-muted/10"
-          onClick={() => handleThemeChange('backgroundImageUrl', 'https://images.unsplash.com/photo-1557683316-973673baf926?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80')}
-        >
-          {data.theme.backgroundImageUrl ? (
-            <>
-              <img src={data.theme.backgroundImageUrl} alt="Background" className="h-full w-full rounded-lg object-cover" />
-              <Button
-                variant="destructive"
-                size="icon"
-                className="absolute right-2 top-2 h-6 w-6"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleThemeChange('backgroundImageUrl', undefined);
-                }}
-              >
-                X
-              </Button>
-            </>
-          ) : (
-            <div className="flex flex-col items-center gap-2 text-muted-foreground">
-              <ImageIcon className="h-8 w-8" />
-              <span className="text-sm">Upload Background</span>
-            </div>
-          )}
         </div>
       </div>
     </div>

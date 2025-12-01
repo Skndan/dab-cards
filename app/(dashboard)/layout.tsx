@@ -99,10 +99,8 @@ export default async function Dashboard({ children }: ProtectedLayoutProps) {
             </header>
           </div>
 
-          <ScrollArea className="flex h-[calc(100vh-5rem)] flex-col gap-4   pt-0 sm:h-[calc(100vh-5rem)]">
-            <div className="p-4 sm:py-4">
-              {children}
-            </div>
+          <ScrollArea className="flex h-[calc(100vh-5rem)] flex-col gap-4 pt-0 sm:h-[calc(100vh-5rem)]">
+            {children}
             <ScrollBar orientation="horizontal" />
           </ScrollArea>
         </SidebarInset>

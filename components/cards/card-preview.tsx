@@ -21,7 +21,7 @@ export function CardPreview({ data }: CardPreviewProps) {
       if (!entry) return;
 
       const { width, height } = entry.contentRect;
-      const padding = 64;
+      const padding = 24;
       const availableWidth = width - padding;
       const availableHeight = height - padding;
 
@@ -191,8 +191,8 @@ export function CardPreview({ data }: CardPreviewProps) {
                   <div className="flex items-end gap-3">
                     {hasProfileImage && (
                       <div className={`relative ${data.theme.profileLayout === 'compact' ? 'h-16 w-16' :
-                          data.theme.profileLayout === 'minimal' ? 'h-20 w-20' :
-                            'h-24 w-24'
+                        data.theme.profileLayout === 'minimal' ? 'h-20 w-20' :
+                          'h-24 w-24'
                         } overflow-hidden rounded-full border-4 border-white bg-gray-100 shadow-md`}>
                         <div className="h-full w-full" style={getImageStyle(data.profileImage)} />
                       </div>
@@ -217,9 +217,9 @@ export function CardPreview({ data }: CardPreviewProps) {
 
               <div className={`${data.theme.profileLayout === 'compact' ? 'mt-2 space-y-0.5' : 'mt-3 space-y-1'}`}>
                 <h1 className={`${data.theme.profileLayout === 'compact' ? 'text-lg' :
-                    data.theme.profileLayout === 'minimal' ? 'text-2xl' :
-                      data.theme.profileLayout === 'modern' ? 'text-2xl tracking-tight' :
-                        'text-xl'
+                  data.theme.profileLayout === 'minimal' ? 'text-2xl' :
+                    data.theme.profileLayout === 'modern' ? 'text-2xl tracking-tight' :
+                      'text-xl'
                   } font-bold text-gray-900`}>{data.name || "Your Name"}</h1>
 
                 {(data.title || data.company) && (
@@ -241,8 +241,8 @@ export function CardPreview({ data }: CardPreviewProps) {
 
                 {data.bio && (
                   <p className={`${data.theme.profileLayout === 'compact' ? 'mt-1 text-xs' :
-                      data.theme.profileLayout === 'minimal' ? 'mt-3 text-sm' :
-                        'mt-2 text-sm'
+                    data.theme.profileLayout === 'minimal' ? 'mt-3 text-sm' :
+                      'mt-2 text-sm'
                     } text-gray-600 max-w-[280px] ${data.theme.profileLayout === 'left' || data.theme.profileLayout === 'compact' ? '' : 'mx-auto'
                     } ${data.theme.profileLayout === 'minimal' ? 'leading-relaxed' : ''}`}>{data.bio}</p>
                 )}
@@ -261,39 +261,39 @@ export function CardPreview({ data }: CardPreviewProps) {
             </div>
 
             <div className={`${data.theme.profileLayout === 'compact' ? 'mt-3' :
-                data.theme.profileLayout === 'minimal' ? 'mt-8' :
-                  'mt-6'
+              data.theme.profileLayout === 'minimal' ? 'mt-8' :
+                'mt-6'
               } flex justify-center gap-4 px-6`}>
               {data.email && (
                 <a href={`mailto:${data.email}`} className={`flex ${data.theme.profileLayout === 'compact' ? 'h-8 w-8' :
-                    data.theme.profileLayout === 'modern' ? 'h-12 w-12' :
-                      'h-10 w-10'
+                  data.theme.profileLayout === 'modern' ? 'h-12 w-12' :
+                    'h-10 w-10'
                   } items-center justify-center rounded-full bg-gray-100 text-gray-900 transition-colors hover:bg-gray-200 shadow-sm`}>
                   <Mail className={`${data.theme.profileLayout === 'compact' ? 'h-4 w-4' :
-                      data.theme.profileLayout === 'modern' ? 'h-6 w-6' :
-                        'h-5 w-5'
+                    data.theme.profileLayout === 'modern' ? 'h-6 w-6' :
+                      'h-5 w-5'
                     }`} />
                 </a>
               )}
               {data.phone && (
                 <a href={`tel:${data.phone}`} className={`flex ${data.theme.profileLayout === 'compact' ? 'h-8 w-8' :
-                    data.theme.profileLayout === 'modern' ? 'h-12 w-12' :
-                      'h-10 w-10'
+                  data.theme.profileLayout === 'modern' ? 'h-12 w-12' :
+                    'h-10 w-10'
                   } items-center justify-center rounded-full bg-gray-100 text-gray-900 transition-colors hover:bg-gray-200 shadow-sm`}>
                   <Phone className={`${data.theme.profileLayout === 'compact' ? 'h-4 w-4' :
-                      data.theme.profileLayout === 'modern' ? 'h-6 w-6' :
-                        'h-5 w-5'
+                    data.theme.profileLayout === 'modern' ? 'h-6 w-6' :
+                      'h-5 w-5'
                     }`} />
                 </a>
               )}
               {data.website && (
                 <a href={data.website} target="_blank" rel="noopener noreferrer" className={`flex ${data.theme.profileLayout === 'compact' ? 'h-8 w-8' :
-                    data.theme.profileLayout === 'modern' ? 'h-12 w-12' :
-                      'h-10 w-10'
+                  data.theme.profileLayout === 'modern' ? 'h-12 w-12' :
+                    'h-10 w-10'
                   } items-center justify-center rounded-full bg-gray-100 text-gray-900 transition-colors hover:bg-gray-200 shadow-sm`}>
                   <Globe className={`${data.theme.profileLayout === 'compact' ? 'h-4 w-4' :
-                      data.theme.profileLayout === 'modern' ? 'h-6 w-6' :
-                        'h-5 w-5'
+                    data.theme.profileLayout === 'modern' ? 'h-6 w-6' :
+                      'h-5 w-5'
                     }`} />
                 </a>
               )}

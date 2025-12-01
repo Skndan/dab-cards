@@ -75,7 +75,7 @@ export default function NewCardPage() {
       </header> */}
 
       {/* Main Content */}
-      <main className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden">
         {/* Editor Panel (Left) */}
         <div className="w-1/2 overflow-y-auto border-r bg-background">
           <CardEditor data={cardData} onChange={setCardData} />
@@ -85,7 +85,7 @@ export default function NewCardPage() {
         <div className="w-1/2 bg-white">
           <CardPreview data={cardData} />
         </div>
-      </main>
+      </div>
     </div>
   );
 }

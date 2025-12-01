@@ -6,7 +6,7 @@ import { eq } from 'drizzle-orm';
 
 export default async function DashboardPage() {
   const session = await getSession();
-  
+
   if (!session) {
     return null;
   }
@@ -17,7 +17,7 @@ export default async function DashboardPage() {
   });
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-4">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Dashboard</h1>
