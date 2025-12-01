@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth/session';
 import { db } from '@/src/db/client';
-import { cards } from '@/src/db/schema';
+import { cards, users } from '@/src/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { generateQRCode } from '@/lib/utils/qr';
 import { uploadFile } from '@/lib/storage/rustfs';
@@ -15,8 +15,26 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    // Ensure user exists in database (upsert)
+    const [user] = await db
+      .insert(users)
+      .values({
+        keycloakId: session.user.sub,
+        email: session.user.email,
+        name: session.user.name || session.user.preferred_username || 'Unknown User',
+      })
+      .onConflictDoUpdate({
+        target: users.keycloakId,
+        set: {
+          email: session.user.email,
+          name: session.user.name || session.user.preferred_username || 'Unknown User',
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+
     const userCards = await db.query.cards.findMany({
-      where: eq(cards.userId, session.user.sub),
+      where: eq(cards.userId, user.id),
       orderBy: (cards, { desc }) => [desc(cards.createdAt)],
     });
 
@@ -50,6 +68,24 @@ export async function POST(request: NextRequest) {
       customFields,
     } = body;
 
+    // Ensure user exists in database (upsert)
+    const [user] = await db
+      .insert(users)
+      .values({
+        keycloakId: session.user.sub,
+        email: session.user.email,
+        name: session.user.name || session.user.preferred_username || 'Unknown User',
+      })
+      .onConflictDoUpdate({
+        target: users.keycloakId,
+        set: {
+          email: session.user.email,
+          name: session.user.name || session.user.preferred_username || 'Unknown User',
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+
     // Generate unique slug
     const slug = `${name.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`;
 
@@ -61,18 +97,20 @@ export async function POST(request: NextRequest) {
 
     // Convert data URL to buffer and upload to RustFS
     const qrCodeBuffer = Buffer.from(qrCodeDataUrl.split(',')[1], 'base64');
-    const qrCodeKey = `qr-codes/${session.user.sub}/${slug}.png`;
-    const qrCodeUrl = await uploadFile({
-      key: qrCodeKey,
-      file: qrCodeBuffer,
-      contentType: 'image/png',
-    });
+    const qrCodeKey = `qr-codes/${user.id}/${slug}.png`;
+    const qrCodeUrl = ``;
+    
+    // await uploadFile({
+    //   key: qrCodeKey,
+    //   file: qrCodeBuffer,
+    //   contentType: 'image/png',
+    // });
 
     // Insert card into database
     const [newCard] = await db
       .insert(cards)
       .values({
-        userId: session.user.sub,
+        userId: user.id,
         slug,
         name,
         title,
@@ -80,7 +118,7 @@ export async function POST(request: NextRequest) {
         email,
         phone,
         website,
-        socialLinks,
+        content: socialLinks,
         payLinks,
         theme,
         customFields,

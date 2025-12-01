@@ -64,11 +64,11 @@ export default function NewCardPage() {
       }
 
       const { card } = await response.json();
-
+      
       toast.success('Card created successfully!', {
         position: 'top-center',
       });
-
+      
       router.push(`/cards/${card.id}/edit`);
     } catch (error) {
       console.error('Error creating card:', error);
@@ -84,26 +84,12 @@ export default function NewCardPage() {
     <>
       <Toaster />
       <div className="flex h-screen flex-col overflow-hidden bg-background">
-
-        <div className="flex h-12 items-center justify-between border-b px-6">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => router.back()}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h1 className="text-lg font-semibold">Create New Card</h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={() => router.back()}>
-              Cancel
-            </Button>
-            <Button onClick={handleSubmit} disabled={loading}>
-              {loading ? 'Saving...' : 'Save'}
-            </Button>
-          </div>
-        </div>
         {/* Main Content */}
         <div className="flex flex-1 overflow-hidden">
           {/* Editor Panel (Left) */}
+          <Button onClick={handleSubmit} disabled={loading}>
+            {loading ? 'Saving...' : 'Save'}
+          </Button>
           <div className="w-1/2 overflow-y-auto border-r bg-background">
             <CardEditor data={cardData} onChange={setCardData} />
           </div>

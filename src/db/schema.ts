@@ -24,13 +24,17 @@ export const cards = pgTable('cards', {
   email: varchar('email', { length: 255 }),
   phone: varchar('phone', { length: 50 }),
   website: varchar('website', { length: 500 }),
-  profilePicture: varchar('profile_picture', { length: 500 }),
-  bannerImage: varchar('banner_image', { length: 500 }),
-  logoImage: varchar('logo_image', { length: 500 }),
-  socialLinks: jsonb('social_links'), // {linkedin, twitter, github, etc}
-  payLinks: jsonb('pay_links'), // {upi, razorpay, dodopayments}
-  customFields: jsonb('custom_fields'),
-  theme: jsonb('theme'), // {primaryColor, secondaryColor, font, layout}
+  cardName: varchar('card_name', { length: 255 }),
+  company: varchar('company', { length: 255 }),
+  department: varchar('department', { length: 255 }),
+  location: varchar('location', { length: 500 }),
+  profileImage: jsonb('profile_image'), // {url, zoom, x, y}
+  coverImage: jsonb('cover_image'), // {url, zoom, x, y}
+  companyLogo: jsonb('company_logo'), // {url, zoom, x, y}
+  content: jsonb('content'), // array of links and collections with nested structure
+  payLinks: jsonb('pay_links'), // {upi, razorpay, dodopayments} - reserved for future
+  customFields: jsonb('custom_fields'), // reserved for future custom field types
+  theme: jsonb('theme'), // {primaryColor, secondaryColor, backgroundColor, font, buttonStyle, profileLayout}
   isActive: boolean('is_active').default(true),
   qrCodeUrl: varchar('qr_code_url', { length: 500 }),
   createdAt: timestamp('created_at').defaultNow().notNull(),

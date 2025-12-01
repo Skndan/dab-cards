@@ -1,34 +1,19 @@
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-
-if (!process.env.RUSTFS_ENDPOINT) {
-  throw new Error('RUSTFS_ENDPOINT is not set');
-}
-
-if (!process.env.RUSTFS_ACCESS_KEY) {
-  throw new Error('RUSTFS_ACCESS_KEY is not set');
-}
-
-if (!process.env.RUSTFS_SECRET_KEY) {
-  throw new Error('RUSTFS_SECRET_KEY is not set');
-}
-
-if (!process.env.RUSTFS_BUCKET_NAME) {
-  throw new Error('RUSTFS_BUCKET_NAME is not set');
-}
+import { env } from '../../env';
 
 // Initialize S3 client for RustFS
 export const s3Client = new S3Client({
-  endpoint: process.env.RUSTFS_ENDPOINT,
-  region: process.env.RUSTFS_REGION || 'us-east-1',
+  endpoint: env.RUSTFS_ENDPOINT,
+  region: env.RUSTFS_REGION,
   credentials: {
-    accessKeyId: process.env.RUSTFS_ACCESS_KEY,
-    secretAccessKey: process.env.RUSTFS_SECRET_KEY,
+    accessKeyId: env.RUSTFS_ACCESS_KEY,
+    secretAccessKey: env.RUSTFS_SECRET_KEY,
   },
   forcePathStyle: true, // Required for S3-compatible storage
 });
 
-export const BUCKET_NAME = process.env.RUSTFS_BUCKET_NAME;
+export const BUCKET_NAME = env.RUSTFS_BUCKET_NAME;
 
 export interface UploadOptions {
   key: string;
