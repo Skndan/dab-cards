@@ -3,6 +3,7 @@
 import { CardData, CardContentItem, LinkItem, LinkCollection, ImageConfig } from "@/types/card";
 import { Phone, Mail, Globe, ExternalLink, MapPin, Building2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 
 interface CardPreviewProps {
   data: CardData;
@@ -83,7 +84,7 @@ export function CardPreview({ data }: CardPreviewProps) {
     }
     return (
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 group-hover:bg-gray-200 transition-colors p-2">
-        <img src="/google-icon.svg" alt={link.platform} className="h-full w-full object-contain" />
+        <Image src="/google-icon.svg" alt={link.platform} width={40} height={40} className="h-full w-full object-contain" />
       </div>
     );
   };
@@ -139,7 +140,7 @@ export function CardPreview({ data }: CardPreviewProps) {
   const hasCompanyLogo = !!(typeof data.companyLogo === 'string' ? data.companyLogo : data.companyLogo?.url);
 
   return (
-    <div ref={containerRef} className="flex h-full w-full items-center justify-center bg-muted/50 p-8 overflow-hidden">
+    <div ref={containerRef} className="flex min-h-screen w-full items-center justify-center bg-muted/50 p-8 overflow-auto">
       <div
         className="relative h-[800px] w-[375px] shrink-0 overflow-hidden rounded-[3rem] border-8 border-gray-900 bg-white shadow-2xl transition-transform duration-200 ease-out origin-center"
         style={{ transform: `scale(${scale})` }}
