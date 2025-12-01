@@ -38,7 +38,7 @@
 
 import { redirect } from "next/navigation";
 
-import { sidebarLinks } from "@/config/dashboard";  
+import { sidebarLinks } from "@/config/dashboard";
 import {
   DashboardSidebar,
   MobileSheetSidebar,
@@ -50,6 +50,12 @@ import { SubscriptionProvider } from "@/hooks/subscription-context";
 import { Subscription } from "@/components/layout/subscription";
 import { Label } from "@/components/ui/label";
 import { getCurrentUser } from "@/lib/auth/session";
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { Search } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { NavBreadcrumb } from "@/components/layout/nav-breadcrumb";
 // import { FeedbackNavbarPill } from "@/components/dashboard/feedback-nav-pill";
 
 interface ProtectedLayoutProps {
@@ -67,8 +73,7 @@ export default async function Dashboard({ children }: ProtectedLayoutProps) {
   //   items: section.items.filter(
   //     ({ authorizeOnly }) => !authorizeOnly || authorizeOnly === user.role,
   //   ),
-  // }));
-
+  // })); 
   return (
     <SubscriptionProvider>
 
@@ -76,32 +81,32 @@ export default async function Dashboard({ children }: ProtectedLayoutProps) {
         <Label className="text-center">RepoVox is under Beta!💚 Please reach out to repovox.official@gmail.com for queries😁</Label>
       </div> */}
 
-      <div className="relative flex min-h-screen w-full">
+      <SidebarProvider>
         <DashboardSidebar links={filteredLinks} />
 
-        <div className="flex flex-1 flex-col">
-          <header className="sticky top-0 z-50 flex h-14 bg-background px-4 lg:h-[60px] xl:px-8">
-            <MaxWidthWrapper className="flex max-w-7xl items-center gap-x-3 px-0">
-              <MobileSheetSidebar links={filteredLinks} />
+        <SidebarInset className="w-full overflow-hidden">
+          <div className="sticky top-0 z-10">
+            <header className="flex h-14 w-full shrink-0 items-center justify-between border-b bg-background/80 px-2 backdrop-blur-sm sm:h-16 sm:px-4">
+              <div className="flex items-center gap-2">
+                <SidebarTrigger className="-ml-0.5 sm:-ml-1 text-foreground" />
+                <Separator orientation="vertical" className="mr-2 hidden h-4 sm:block" />
+                <NavBreadcrumb className="hidden sm:flex" />
+              </div>
+              <div className="ml-auto flex flex-1 space-x-2  sm:px-2 lg:max-w-lg justify-end">
+                {/* <Search /> */}
+                <ThemeToggle />
+              </div>
+            </header>
+          </div>
 
-              {/* <div className="w-full flex-1">
-                <SearchCommand links={filteredLinks} />
-              </div> */}
-
-              <Subscription />
-              {/* <FeedbackNavbarPill /> */}
-              <ModeToggle />
-              {/* <UserAccountNav /> */}
-            </MaxWidthWrapper>
-          </header>
-
-          <main className="flex-1 p-4 xl:px-8">
-            <MaxWidthWrapper className="flex h-full max-w-7xl flex-col gap-4 px-0 lg:gap-6">
+          <ScrollArea className="flex h-[calc(100vh-5rem)] flex-col gap-4   pt-0 sm:h-[calc(100vh-5rem)]">
+            <div className="p-4 sm:py-4">
               {children}
-            </MaxWidthWrapper>
-          </main>
-        </div>
-      </div>
+            </div>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
+        </SidebarInset>
+      </SidebarProvider>
     </SubscriptionProvider>
   );
 }
