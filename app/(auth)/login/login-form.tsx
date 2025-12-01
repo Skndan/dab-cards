@@ -11,14 +11,11 @@ import {
   Field,
   FieldDescription,
   FieldGroup,
-  FieldLabel,
-  FieldSeparator,
 } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
 
 import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { keycloakConfig } from '@/lib/auth/keycloak';
+import { useAuth } from 'react-oidc-context';
 import { Icons } from "@/components/shared/icons"
 
 export function LoginForm({
@@ -27,25 +24,26 @@ export function LoginForm({
 }: React.ComponentProps<"div">) {
 
 
-    const searchParams = useSearchParams();
+  const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect') || '/dashboard';
   const error = searchParams.get('error');
   const [isLoading, setIsLoading] = useState(false);
+  const auth = useAuth();
 
-  const handleSignIn = () => {
+  const handleSignIn = async () => {
     setIsLoading(true);
-    // Redirect to Keycloak login
-    const loginUrl = new URL(
-      `${keycloakConfig.url}/realms/${keycloakConfig.realm}/protocol/openid-connect/auth`
-    );
-
-    loginUrl.searchParams.set('client_id', keycloakConfig.clientId);
-    loginUrl.searchParams.set('redirect_uri', `${window.location.origin}/api/auth/callback`);
-    loginUrl.searchParams.set('response_type', 'code');
-    loginUrl.searchParams.set('scope', 'openid email profile');
-    loginUrl.searchParams.set('state', redirect);
-
-    window.location.href = loginUrl.toString();
+    try {
+      // Store redirect URL in state for after callback
+      if (redirect && redirect !== '/dashboard') {
+        sessionStorage.setItem('auth_redirect', redirect);
+      }
+      await auth.signinRedirect({
+        extraQueryParams: { kc_idp_hint: "google" }
+      });
+    } catch (error) {
+      console.error('Sign in error:', error);
+      setIsLoading(false);
+    }
   };
 
 
@@ -71,7 +69,7 @@ export function LoginForm({
                   </svg>
                   Login with Apple
                 </Button> */}
-                <Button variant="outline" type="button" onClick={handleSignIn}>
+                <Button variant="outline" type="button" disabled={isLoading} onClick={handleSignIn}>
                   <Icons.google className="h-4 w-4 mr-2" />
                   Login with Google
                 </Button>

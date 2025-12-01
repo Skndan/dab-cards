@@ -7,7 +7,7 @@ Create a `.env` file in the root directory with the following variables:
 NEXT_PUBLIC_KEYCLOAK_URL=https://your-keycloak-url.com
 NEXT_PUBLIC_KEYCLOAK_REALM=your-realm
 NEXT_PUBLIC_KEYCLOAK_CLIENT_ID=your-client-id
-KEYCLOAK_CLIENT_SECRET=your-client-secret
+# KEYCLOAK_CLIENT_SECRET=your-client-secret
 
 # Application
 NEXT_PUBLIC_APP_URL=http://localhost:3000

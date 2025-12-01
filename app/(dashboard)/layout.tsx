@@ -44,7 +44,7 @@ import {
   MobileSheetSidebar,
 } from "@/components/layout/dashboard-sidebar";
 import { ModeToggle } from "@/components/layout/mode-toggle";
-import { UserAccountNav } from "@/components/layout/user-account-nav";
+// import { UserAccountNav } from "@/components/layout/user-account-nav";
 import MaxWidthWrapper from "@/components/shared/max-width-wrapper";
 import { SubscriptionProvider } from "@/hooks/subscription-context";
 import { Subscription } from "@/components/layout/subscription";
@@ -91,7 +91,7 @@ export default async function Dashboard({ children }: ProtectedLayoutProps) {
               <Subscription />
               {/* <FeedbackNavbarPill /> */}
               <ModeToggle />
-              <UserAccountNav />
+              {/* <UserAccountNav /> */}
             </MaxWidthWrapper>
           </header>
 

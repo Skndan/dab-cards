@@ -1,7 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { keycloakInstance, KeycloakUser } from "@/lib/auth/keycloak";
+import { useAuth } from "react-oidc-context";
+import { KeycloakUser } from "@/lib/auth/keycloak";
 import axios from "axios";
 
 const SubscriptionContext = createContext<SubscriptionContextValue>({
@@ -10,23 +11,28 @@ const SubscriptionContext = createContext<SubscriptionContextValue>({
 });
 
 export function SubscriptionProvider({ children }: React.PropsWithChildren) {
-  const [session, setSession] = useState<{ user: KeycloakUser } | null>(
-    keycloakInstance.authenticated ? { user: keycloakInstance.tokenParsed as KeycloakUser } : null
-  );
+  const auth = useAuth();
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (session?.user) {
+    if (auth.isAuthenticated && auth.user) {
       // Fetch subscription data
       const fetchSubscription = async () => {
-        const subscription = await axios.get(`/api/subscription`);
-        setSubscription(subscription.data);
-        setIsLoading(false);
+        try {
+          const subscription = await axios.get(`/api/subscription`);
+          setSubscription(subscription.data);
+          setIsLoading(false);
+        } catch (error) {
+          console.error('Failed to fetch subscription:', error);
+          setIsLoading(false);
+        }
       };
       fetchSubscription();
+    } else if (!auth.isLoading) {
+      setIsLoading(false);
     }
-  }, [session]);
+  }, [auth.isAuthenticated, auth.user, auth.isLoading]);
 
   return (
     <SubscriptionContext.Provider value={{ subscription, isLoading }}>

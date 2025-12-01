@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { clearSession } from '@/lib/auth/session';
+import { env } from '@/env';
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,7 +18,8 @@ export async function GET(request: NextRequest) {
   try {
     await clearSession();
 
-    const logoutUrl = `${process.env.NEXT_PUBLIC_KEYCLOAK_URL}/realms/${process.env.NEXT_PUBLIC_KEYCLOAK_REALM}/protocol/openid-connect/logout?redirect_uri=${encodeURIComponent(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000')}`;
+    // OIDC logout URL (Keycloak)
+    const logoutUrl = `${env.NEXT_PUBLIC_KEYCLOAK_URL}/realms/${env.NEXT_PUBLIC_KEYCLOAK_REALM}/protocol/openid-connect/logout?redirect_uri=${encodeURIComponent(env.NEXT_PUBLIC_APP_URL)}`;
 
     return NextResponse.redirect(logoutUrl);
   } catch (error) {

@@ -1,32 +1,29 @@
-import Keycloak from 'keycloak-js';
+import { env } from '@/env';
 
-if (!process.env.NEXT_PUBLIC_KEYCLOAK_URL) {
+if (!env.NEXT_PUBLIC_KEYCLOAK_URL) {
   throw new Error('NEXT_PUBLIC_KEYCLOAK_URL is not set');
 }
 
-if (!process.env.NEXT_PUBLIC_KEYCLOAK_REALM) {
+if (!env.NEXT_PUBLIC_KEYCLOAK_REALM) {
   throw new Error('NEXT_PUBLIC_KEYCLOAK_REALM is not set');
 }
 
-if (!process.env.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID) {
+if (!env.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID) {
   throw new Error('NEXT_PUBLIC_KEYCLOAK_CLIENT_ID is not set');
 }
 
-// Keycloak configuration
-export const keycloakConfig = {
-  url: process.env.NEXT_PUBLIC_KEYCLOAK_URL,
-  realm: process.env.NEXT_PUBLIC_KEYCLOAK_REALM,
-  clientId: process.env.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID,
+// OIDC configuration (using Keycloak as provider)
+export const oidcConfig = {
+  url: env.NEXT_PUBLIC_KEYCLOAK_URL,
+  realm: env.NEXT_PUBLIC_KEYCLOAK_REALM,
+  clientId: env.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID,
 };
 
-// Initialize Keycloak instance
-export const keycloakInstance = new Keycloak(keycloakConfig);
-
-// Server-side auth utilities
+// Server-side OIDC auth utilities
 export async function verifyToken(token: string) {
   try {
     const response = await fetch(
-      `${keycloakConfig.url}/realms/${keycloakConfig.realm}/protocol/openid-connect/userinfo`,
+      `${oidcConfig.url}/realms/${oidcConfig.realm}/protocol/openid-connect/userinfo`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -48,7 +45,7 @@ export async function verifyToken(token: string) {
 export async function refreshAccessToken(refreshToken: string) {
   try {
     const response = await fetch(
-      `${keycloakConfig.url}/realms/${keycloakConfig.realm}/protocol/openid-connect/token`,
+      `${oidcConfig.url}/realms/${oidcConfig.realm}/protocol/openid-connect/token`,
       {
         method: 'POST',
         headers: {
@@ -56,7 +53,8 @@ export async function refreshAccessToken(refreshToken: string) {
         },
         body: new URLSearchParams({
           grant_type: 'refresh_token',
-          client_id: keycloakConfig.clientId,
+          client_id: oidcConfig.clientId,
+          // client_secret: env.KEYCLOAK_CLIENT_SECRET,
           refresh_token: refreshToken,
         }),
       }
@@ -73,7 +71,8 @@ export async function refreshAccessToken(refreshToken: string) {
   }
 }
 
-export interface KeycloakUser {
+// OIDC User interface (compatible with Keycloak user claims)
+export interface OidcUser {
   sub: string;
   email: string;
   email_verified: boolean;
@@ -83,4 +82,7 @@ export interface KeycloakUser {
   family_name?: string;
   role?: string;
 }
+
+// Keep KeycloakUser as alias for backward compatibility
+export type KeycloakUser = OidcUser;
 

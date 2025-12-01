@@ -3,7 +3,7 @@ import { z } from "zod";
 
 export const env = createEnv({
   server: {
-    KEYCLOAK_CLIENT_SECRET: z.string().min(1),
+    // KEYCLOAK_CLIENT_SECRET: z.string().min(1),
     POSTGRES_URL: z.string().url(),
     REDIS_URL: z.string().url(),
     OPENAI_API_KEY: z.string().min(1),
@@ -35,7 +35,7 @@ export const env = createEnv({
     NEXT_PUBLIC_KEYCLOAK_URL: process.env.NEXT_PUBLIC_KEYCLOAK_URL,
     NEXT_PUBLIC_KEYCLOAK_REALM: process.env.NEXT_PUBLIC_KEYCLOAK_REALM,
     NEXT_PUBLIC_KEYCLOAK_CLIENT_ID: process.env.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID,
-    KEYCLOAK_CLIENT_SECRET: process.env.KEYCLOAK_CLIENT_SECRET,
+    // KEYCLOAK_CLIENT_SECRET: process.env.KEYCLOAK_CLIENT_SECRET,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     POSTGRES_URL: process.env.POSTGRES_URL,
     REDIS_URL: process.env.REDIS_URL,
