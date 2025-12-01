@@ -2,54 +2,41 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { CardData } from '@/types/card';
+import { CardEditor } from '@/components/cards/card-editor';
+import { CardPreview } from '@/components/cards/card-preview';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, Save } from 'lucide-react';
+
+const initialCardData: CardData = {
+  name: '',
+  title: '',
+  bio: '',
+  email: '',
+  phone: '',
+  website: '',
+  socialLinks: [],
+  theme: {
+    primaryColor: '#000000',
+    secondaryColor: '#ffffff',
+    font: 'Inter',
+    backgroundColor: '#ffffff',
+  },
+};
 
 export default function NewCardPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    title: '',
-    bio: '',
-    email: '',
-    phone: '',
-    website: '',
-    socialLinks: {
-      linkedin: '',
-      twitter: '',
-      github: '',
-      instagram: '',
-    },
-    payLinks: {
-      upi: '',
-      razorpay: '',
-      dodopayments: '',
-    },
-    theme: {
-      primaryColor: '#000000',
-      secondaryColor: '#ffffff',
-      font: 'Inter',
-    },
-  });
+  const [cardData, setCardData] = useState<CardData>(initialCardData);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setLoading(true);
-
     try {
-      const response = await fetch('/api/cards', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create card');
-      }
-
-      const { card } = await response.json();
-      router.push(`/cards/${card.id}/edit`);
+      // API integration will be added later
+      console.log('Saving card data:', cardData);
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+      alert('Card saved! (Simulation)');
+      // router.push(`/cards/${newId}/edit`);
     } catch (error) {
       console.error('Error creating card:', error);
       alert('Failed to create card. Please try again.');
@@ -59,127 +46,47 @@ export default function NewCardPage() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl">
-      <h1 className="mb-6 text-3xl font-bold">Create New Card</h1>
-      
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold">Basic Information</h2>
-          
-          <div>
-            <label className="block text-sm font-medium">Name *</label>
-            <input
-              type="text"
-              required
-              className="mt-1 w-full rounded-md border px-3 py-2"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium">Title</label>
-            <input
-              type="text"
-              className="mt-1 w-full rounded-md border px-3 py-2"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium">Bio</label>
-            <textarea
-              rows={4}
-              className="mt-1 w-full rounded-md border px-3 py-2"
-              value={formData.bio}
-              onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-            />
-          </div>
+    <div className="flex h-screen flex-col overflow-hidden bg-background">
+      {/* Header */}
+      {/* <header className="flex h-16 items-center justify-between border-b px-6">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => router.back()}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <h1 className="text-lg font-semibold">Create New Card</h1>
         </div>
-
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold">Contact Information</h2>
-          
-          <div>
-            <label className="block text-sm font-medium">Email</label>
-            <input
-              type="email"
-              className="mt-1 w-full rounded-md border px-3 py-2"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium">Phone</label>
-            <input
-              type="tel"
-              className="mt-1 w-full rounded-md border px-3 py-2"
-              value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium">Website</label>
-            <input
-              type="url"
-              className="mt-1 w-full rounded-md border px-3 py-2"
-              value={formData.website}
-              onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-            />
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold">Social Links</h2>
-          
-          <div>
-            <label className="block text-sm font-medium">LinkedIn</label>
-            <input
-              type="url"
-              className="mt-1 w-full rounded-md border px-3 py-2"
-              value={formData.socialLinks.linkedin}
-              onChange={(e) => setFormData({
-                ...formData,
-                socialLinks: { ...formData.socialLinks, linkedin: e.target.value }
-              })}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium">Twitter</label>
-            <input
-              type="url"
-              className="mt-1 w-full rounded-md border px-3 py-2"
-              value={formData.socialLinks.twitter}
-              onChange={(e) => setFormData({
-                ...formData,
-                socialLinks: { ...formData.socialLinks, twitter: e.target.value }
-              })}
-            />
-          </div>
-        </div>
-
-        <div className="flex gap-4">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="rounded-md border px-4 py-2 text-sm font-medium hover:bg-gray-50"
-          >
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => router.back()}>
             Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-          >
-            {loading ? 'Creating...' : 'Create Card'}
-          </button>
+          </Button>
+          <Button onClick={handleSubmit} disabled={loading}>
+            {loading ? (
+              <>
+                <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="mr-2 h-4 w-4" />
+                Save Card
+              </>
+            )}
+          </Button>
         </div>
-      </form>
+      </header> */}
+
+      {/* Main Content */}
+      <main className="flex flex-1 overflow-hidden">
+        {/* Editor Panel (Left) */}
+        <div className="w-1/2 overflow-y-auto border-r bg-background">
+          <CardEditor data={cardData} onChange={setCardData} />
+        </div>
+
+        {/* Preview Panel (Right) */}
+        <div className="w-1/2 bg-muted/30">
+          <CardPreview data={cardData} />
+        </div>
+      </main>
     </div>
   );
 }
-
