@@ -12,15 +12,13 @@ const initialCardData: CardData = {
   name: '',
   title: '',
   bio: '',
-  email: '',
-  phone: '',
-  website: '',
-  socialLinks: [],
+  content: [],
   theme: {
     primaryColor: '#000000',
     secondaryColor: '#ffffff',
-    font: 'Inter',
     backgroundColor: '#ffffff',
+    font: 'Inter',
+    buttonStyle: 'rounded',
   },
 };
 
@@ -83,7 +81,7 @@ export default function NewCardPage() {
         </div>
 
         {/* Preview Panel (Right) */}
-        <div className="w-1/2 bg-muted/30">
+        <div className="w-1/2 bg-white">
           <CardPreview data={cardData} />
         </div>
       </main>
