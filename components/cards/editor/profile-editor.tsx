@@ -1,11 +1,14 @@
 "use client";
 
-import { CardData } from "@/types/card";
+import { CardData, ImageConfig, ProfileLayout } from "@/types/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Upload, Image as ImageIcon, Building2 } from "lucide-react";
+import { Upload, Image as ImageIcon, Building2, LayoutTemplate } from "lucide-react";
+import { ImageUploadDialog } from "./image-upload-dialog";
+import { useState } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface ProfileEditorProps {
   data: CardData;
@@ -13,23 +16,63 @@ interface ProfileEditorProps {
 }
 
 export function ProfileEditor({ data, onChange }: ProfileEditorProps) {
+  const [activeUploadField, setActiveUploadField] = useState<keyof CardData | null>(null);
+
   const handleChange = (field: keyof CardData, value: any) => {
     onChange({ ...data, [field]: value });
   };
 
-  // Mock upload function
-  const handleUpload = (field: keyof CardData) => {
-    // In a real app, this would open a file picker
-    const mockUrls: Record<string, string> = {
-      profileImage: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-      coverImage: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
-      companyLogo: "https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-    };
-    handleChange(field, mockUrls[field as string] || "");
+  const handleThemeChange = (field: string, value: any) => {
+    onChange({ ...data, theme: { ...data.theme, [field]: value } });
+  };
+
+  const handleImageSave = (config: ImageConfig) => {
+    if (activeUploadField) {
+      handleChange(activeUploadField, config);
+    }
+  };
+
+  const getImageSrc = (field: keyof CardData) => {
+    const val = data[field];
+    if (!val) return null;
+    return typeof val === 'string' ? val : (val as ImageConfig).url;
   };
 
   return (
     <div className="space-y-6">
+      <ImageUploadDialog
+        open={!!activeUploadField}
+        onOpenChange={(open) => !open && setActiveUploadField(null)}
+        title={activeUploadField === 'coverImage' ? 'Edit Cover Image' : 'Edit Profile Image'}
+        currentImage={activeUploadField ? data[activeUploadField] as string | ImageConfig : undefined}
+        onSave={handleImageSave}
+        aspectRatio={activeUploadField === 'coverImage' ? 16 / 9 : 1}
+      />
+
+      {/* Layout Selector */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-medium">Layout</h3>
+        <div className="grid grid-cols-3 gap-4">
+          {[
+            { id: 'classic', label: 'Classic', icon: 'Layout 1' },
+            { id: 'left', label: 'Left Aligned', icon: 'Layout 2' },
+            { id: 'modern', label: 'Modern', icon: 'Layout 3' }
+          ].map((layout) => (
+            <button
+              key={layout.id}
+              className={`flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-all ${data.theme.profileLayout === layout.id ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'}`}
+              onClick={() => handleThemeChange('profileLayout', layout.id)}
+            >
+              <div className="h-12 w-full rounded bg-muted/50 flex items-center justify-center">
+                {/* Placeholder for layout visual */}
+                <LayoutTemplate className="h-6 w-6 text-muted-foreground" />
+              </div>
+              <span className="text-sm font-medium">{layout.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Images</h3>
         <div className="grid grid-cols-3 gap-4">
@@ -37,11 +80,11 @@ export function ProfileEditor({ data, onChange }: ProfileEditorProps) {
           <div className="space-y-2">
             <Label>Profile</Label>
             <div
-              className="relative flex aspect-square cursor-pointer items-center justify-center rounded-full border-2 border-dashed border-muted-foreground/25 hover:border-primary/50"
-              onClick={() => handleUpload('profileImage')}
+              className="relative flex aspect-square cursor-pointer items-center justify-center rounded-full border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 overflow-hidden"
+              onClick={() => setActiveUploadField('profileImage')}
             >
-              {data.profileImage ? (
-                <img src={data.profileImage} alt="Profile" className="h-full w-full rounded-full object-cover" />
+              {getImageSrc('profileImage') ? (
+                <img src={getImageSrc('profileImage')!} alt="Profile" className="h-full w-full object-cover" />
               ) : (
                 <Upload className="h-6 w-6 text-muted-foreground" />
               )}
@@ -52,11 +95,11 @@ export function ProfileEditor({ data, onChange }: ProfileEditorProps) {
           <div className="space-y-2">
             <Label>Cover</Label>
             <div
-              className="relative flex aspect-video cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50"
-              onClick={() => handleUpload('coverImage')}
+              className="relative flex aspect-video cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 overflow-hidden"
+              onClick={() => setActiveUploadField('coverImage')}
             >
-              {data.coverImage ? (
-                <img src={data.coverImage} alt="Cover" className="h-full w-full rounded-lg object-cover" />
+              {getImageSrc('coverImage') ? (
+                <img src={getImageSrc('coverImage')!} alt="Cover" className="h-full w-full object-cover" />
               ) : (
                 <ImageIcon className="h-6 w-6 text-muted-foreground" />
               )}
@@ -67,11 +110,11 @@ export function ProfileEditor({ data, onChange }: ProfileEditorProps) {
           <div className="space-y-2">
             <Label>Logo</Label>
             <div
-              className="relative flex aspect-square cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50"
-              onClick={() => handleUpload('companyLogo')}
+              className="relative flex aspect-square cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 overflow-hidden"
+              onClick={() => setActiveUploadField('companyLogo')}
             >
-              {data.companyLogo ? (
-                <img src={data.companyLogo} alt="Logo" className="h-full w-full rounded-lg object-contain p-2" />
+              {getImageSrc('companyLogo') ? (
+                <img src={getImageSrc('companyLogo')!} alt="Logo" className="h-full w-full object-contain p-2" />
               ) : (
                 <Building2 className="h-6 w-6 text-muted-foreground" />
               )}

@@ -1,6 +1,6 @@
 "use client";
 
-import { CardData, CardContentItem, LinkItem, LinkCollection } from "@/types/card";
+import { CardData, CardContentItem, LinkItem, LinkCollection, ImageConfig } from "@/types/card";
 import { Phone, Mail, Globe, ExternalLink, MapPin, Building2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -63,6 +63,32 @@ export function CardPreview({ data }: CardPreviewProps) {
     }
   };
 
+  const getImageStyle = (config: string | ImageConfig | undefined) => {
+    if (!config) return {};
+    if (typeof config === 'string') return { backgroundImage: `url(${config})`, backgroundSize: 'cover', backgroundPosition: 'center' };
+    return {
+      backgroundImage: `url(${config.url})`,
+      backgroundSize: `${config.zoom * 100}%`,
+      backgroundPosition: `${config.x}% ${config.y}%`
+    };
+  };
+
+  const renderLinkIcon = (link: LinkItem) => {
+    if (link.useCustomIcon) {
+      return (
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 group-hover:bg-gray-200 transition-colors text-xl">
+          {link.icon || '🔗'}
+        </div>
+      );
+    }
+    // Use SVG for standard platforms
+    return (
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 group-hover:bg-gray-200 transition-colors p-2">
+        <img src="/google-icon.svg" alt={link.platform} className="h-full w-full object-contain" />
+      </div>
+    );
+  };
+
   const renderLink = (link: LinkItem) => (
     <a
       key={link.id}
@@ -78,11 +104,7 @@ export function CardPreview({ data }: CardPreviewProps) {
       <div className="flex items-center gap-3 w-full">
         {link.thumbnailUrl ? (
           <img src={link.thumbnailUrl} alt="" className="h-10 w-10 rounded-md object-cover" />
-        ) : (
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 group-hover:bg-gray-200 transition-colors text-xl">
-            {link.icon || '🔗'}
-          </div>
-        )}
+        ) : renderLinkIcon(link)}
         <div className="flex-1 min-w-0 text-left">
           <span className="block font-medium text-gray-900 truncate">{link.title}</span>
           {link.displayMode === 'featured' && link.url && (
@@ -143,15 +165,24 @@ export function CardPreview({ data }: CardPreviewProps) {
 
           <div className="relative z-10">
             {/* Cover Image */}
-            <div className="h-32 w-full bg-gray-200" style={{ backgroundColor: data.theme.primaryColor }}>
-              {data.coverImage && <img src={data.coverImage} alt="Cover" className="h-full w-full object-cover" />}
-            </div>
+            <div
+              className="h-32 w-full bg-gray-200"
+              style={{
+                backgroundColor: data.theme.primaryColor,
+                ...getImageStyle(data.coverImage)
+              }}
+            />
 
-            {/* Profile Header */}
-            <div className="relative -mt-12 px-6 text-center">
-              <div className="mx-auto h-24 w-24 overflow-hidden rounded-full border-4 border-white bg-gray-100 shadow-md">
+            {/* Profile Header - Layout Logic */}
+            <div className={`relative px-6 ${data.theme.profileLayout === 'left' ? 'text-left' : 'text-center'}`}>
+              <div
+                className={`
+                            relative -mt-12 h-24 w-24 overflow-hidden rounded-full border-4 border-white bg-gray-100 shadow-md
+                            ${data.theme.profileLayout === 'left' ? '' : 'mx-auto'}
+                        `}
+              >
                 {data.profileImage ? (
-                  <img src={data.profileImage} alt={data.name} className="h-full w-full object-cover" />
+                  <div className="h-full w-full" style={getImageStyle(data.profileImage)} />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center bg-gray-100 text-2xl font-bold text-gray-400">
                     {data.name ? data.name.charAt(0) : "?"}
@@ -163,22 +194,26 @@ export function CardPreview({ data }: CardPreviewProps) {
                 <h1 className="text-xl font-bold text-gray-900">{data.name || "Your Name"}</h1>
 
                 {(data.title || data.company) && (
-                  <div className="flex flex-col items-center text-sm text-gray-600">
+                  <div className={`flex flex-col ${data.theme.profileLayout === 'left' ? 'items-start' : 'items-center'} text-sm text-gray-600`}>
                     {data.title && <span className="font-medium">{data.title}</span>}
                     {data.company && (
                       <span className="flex items-center gap-1 opacity-80">
-                        {data.companyLogo && <img src={data.companyLogo} className="h-4 w-4 object-contain" alt="" />}
+                        {data.companyLogo && (
+                          <div className="h-4 w-4 overflow-hidden rounded-sm">
+                            <div className="h-full w-full" style={getImageStyle(data.companyLogo)} />
+                          </div>
+                        )}
                         {data.company}
                       </span>
                     )}
                   </div>
                 )}
 
-                {data.bio && <p className="mt-2 text-sm text-gray-600 max-w-[280px] mx-auto">{data.bio}</p>}
+                {data.bio && <p className={`mt-2 text-sm text-gray-600 max-w-[280px] ${data.theme.profileLayout === 'left' ? '' : 'mx-auto'}`}>{data.bio}</p>}
               </div>
 
               {/* Location & Contact */}
-              <div className="mt-4 flex flex-wrap justify-center gap-3 text-xs text-gray-500">
+              <div className={`mt-4 flex flex-wrap gap-3 text-xs text-gray-500 ${data.theme.profileLayout === 'left' ? 'justify-start' : 'justify-center'}`}>
                 {data.location && (
                   <span className="flex items-center gap-1">
                     <MapPin className="h-3 w-3" /> {data.location}

@@ -19,6 +19,7 @@ const initialCardData: CardData = {
     backgroundColor: '#ffffff',
     font: 'Inter',
     buttonStyle: 'rounded',
+    profileLayout: 'classic',
   },
 };
 

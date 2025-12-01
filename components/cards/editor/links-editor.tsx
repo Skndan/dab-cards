@@ -20,9 +20,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, GripVertical, Trash2, Edit2, Link as LinkIcon, FolderPlus, ArrowUp, ArrowDown, ChevronRight, ChevronDown } from "lucide-react";
+import { Plus, GripVertical, Trash2, Edit2, Link as LinkIcon, FolderPlus, ArrowUp, ArrowDown, ChevronRight, ChevronDown, Smile } from "lucide-react";
 import { useState } from "react";
 import { Reorder, useDragControls } from "framer-motion";
+import { Switch } from "@/components/ui/switch";
 
 interface LinksEditorProps {
   data: CardData;
@@ -41,7 +42,7 @@ const PRESETS: { platform: SocialPlatform; label: string; icon: string; placehol
   { platform: 'custom', label: 'Custom Link', icon: '🔗', placeholder: 'https://...' },
 ];
 
-const ICONS = ['🔗', '📸', '💼', '🐦', '📺', '🐙', '🌐', '📧', '📞', '🎵', '🛒', '📅', '📍', '📝', '🎨'];
+const ICONS = ['🔗', '📸', '💼', '🐦', '📺', '🐙', '🌐', '📧', '📞', '🎵', '🛒', '📅', '📍', '📝', '🎨', '⭐', '🔥', '💡', '🚀'];
 
 export function LinksEditor({ data, onChange }: LinksEditorProps) {
   const [isAddLinkOpen, setIsAddLinkOpen] = useState(false);
@@ -58,10 +59,10 @@ export function LinksEditor({ data, onChange }: LinksEditorProps) {
       active: true,
       displayMode: 'default',
       icon: PRESETS.find(p => p.platform === platform)?.icon || '🔗',
+      useCustomIcon: false,
     };
 
     if (collectionId) {
-      // Add to collection
       const newContent = data.content.map(item => {
         if (item.id === collectionId && item.type === 'collection') {
           return { ...item, links: [...item.links, newLink] };
@@ -70,7 +71,6 @@ export function LinksEditor({ data, onChange }: LinksEditorProps) {
       });
       onChange({ ...data, content: newContent });
     } else {
-      // Add to root
       onChange({ ...data, content: [...data.content, newLink] });
     }
 
@@ -92,7 +92,6 @@ export function LinksEditor({ data, onChange }: LinksEditorProps) {
   };
 
   const updateItem = (id: string, updates: Partial<CardContentItem>) => {
-    // Helper to recursively update
     const updateInList = (list: CardContentItem[]): CardContentItem[] => {
       return list.map(item => {
         if (item.id === id) {
@@ -192,7 +191,7 @@ export function LinksEditor({ data, onChange }: LinksEditorProps) {
                         <FolderPlus className="h-4 w-4 text-blue-500" />
                       </button>
                     ) : (
-                      <span className="text-lg">{item.icon || '🔗'}</span>
+                      <span className="text-lg">{(item as LinkItem).useCustomIcon ? item.icon : (PRESETS.find(p => p.platform === (item as LinkItem).platform)?.icon || '🔗')}</span>
                     )}
                     <span className="font-medium">{item.title}</span>
                   </div>
@@ -246,7 +245,7 @@ export function LinksEditor({ data, onChange }: LinksEditorProps) {
                   {item.links.length === 0 && <p className="text-xs text-muted-foreground text-center py-2">Empty collection</p>}
                   {item.links.map((link) => (
                     <div key={link.id} className="flex items-center gap-3 rounded-md border bg-background p-2">
-                      <span className="text-lg">{link.icon || '🔗'}</span>
+                      <span className="text-lg">{link.useCustomIcon ? link.icon : (PRESETS.find(p => p.platform === link.platform)?.icon || '🔗')}</span>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{link.title}</p>
                         <p className="text-xs text-muted-foreground truncate">{link.url}</p>
@@ -291,20 +290,33 @@ export function LinksEditor({ data, onChange }: LinksEditorProps) {
                 />
               </div>
 
-              <div className="grid gap-2">
-                <Label>Icon</Label>
-                <div className="flex flex-wrap gap-2">
-                  {ICONS.map(icon => (
-                    <button
-                      key={icon}
-                      className={`flex h-8 w-8 items-center justify-center rounded-md border ${editingItem.icon === icon ? 'border-primary bg-primary/10' : 'hover:bg-muted'}`}
-                      onClick={() => updateItem(editingItem.id, { icon })}
-                    >
-                      {icon}
-                    </button>
-                  ))}
+              <div className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
+                <div className="space-y-0.5">
+                  <Label>Use Custom Icon</Label>
+                  <p className="text-xs text-muted-foreground">Override the default platform logo</p>
                 </div>
+                <Switch
+                  checked={editingItem.useCustomIcon}
+                  onCheckedChange={(checked: boolean) => updateItem(editingItem.id, { useCustomIcon: checked })}
+                />
               </div>
+
+              {editingItem.useCustomIcon && (
+                <div className="grid gap-2">
+                  <Label>Select Icon</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {ICONS.map(icon => (
+                      <button
+                        key={icon}
+                        className={`flex h-8 w-8 items-center justify-center rounded-md border ${editingItem.icon === icon ? 'border-primary bg-primary/10' : 'hover:bg-muted'}`}
+                        onClick={() => updateItem(editingItem.id, { icon })}
+                      >
+                        {icon}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="grid gap-2">
                 <Label>Display Mode</Label>
