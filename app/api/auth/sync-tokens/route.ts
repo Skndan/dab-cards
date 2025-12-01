@@ -22,12 +22,12 @@ export async function POST(request: NextRequest) {
 
     // Create or update user in database
     const existingUser = await db.query.users.findFirst({
-      where: eq(users.keycloakId, userInfo.sub),
+      where: eq(users.id, userInfo.sub),
     });
 
     if (!existingUser) {
       await db.insert(users).values({
-        keycloakId: userInfo.sub,
+        id: userInfo.sub,
         email: userInfo.email,
         name: userInfo.name || userInfo.preferred_username,
         avatarUrl: null,

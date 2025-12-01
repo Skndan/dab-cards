@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Plus, ExternalLink, QrCode, CreditCard, Sparkles, ArrowRight } from 'lucide-react';
 import { CardPreview } from '@/components/cards/card-preview';
@@ -113,11 +112,11 @@ function CardSkeleton() {
         <div className="flex h-full w-full items-center justify-center p-8">
           <div className="relative h-full w-[280px] shrink-0 overflow-hidden rounded-[2.5rem] border-8 border-gray-200 bg-white">
             <div className="absolute left-1/2 top-0 z-20 h-6 w-28 -translate-x-1/2 rounded-b-2xl bg-gray-200"></div>
-            
+
             <div className="h-full overflow-hidden p-6 space-y-4">
               {/* Cover image skeleton */}
               <Skeleton className="h-24 w-full rounded-lg" />
-              
+
               {/* Profile section */}
               <div className="flex flex-col items-center -mt-10 space-y-3">
                 <Skeleton className="h-20 w-20 rounded-full border-4 border-white" />
@@ -126,14 +125,14 @@ function CardSkeleton() {
                   <Skeleton className="h-3 w-24 mx-auto" />
                 </div>
               </div>
-              
+
               {/* Contact buttons */}
               <div className="flex justify-center gap-3">
                 <Skeleton className="h-10 w-10 rounded-full" />
                 <Skeleton className="h-10 w-10 rounded-full" />
                 <Skeleton className="h-10 w-10 rounded-full" />
               </div>
-              
+
               {/* Links skeleton */}
               <div className="space-y-2">
                 <Skeleton className="h-14 w-full rounded-xl" />
@@ -145,7 +144,7 @@ function CardSkeleton() {
       </div>
 
       {/* Card Info Overlay Skeleton */}
-      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent p-4">
+      <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 via-black/60 to-transparent p-4">
         <div className="flex items-start justify-between mb-2">
           <div className="flex-1 space-y-2">
             <Skeleton className="h-5 w-32 bg-white/20" />
@@ -252,7 +251,7 @@ export default function CardsPage() {
 
       {/* Cards Grid */}
       {cards.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 px-4 border-2 border-dashed rounded-lg bg-gradient-to-br from-muted/50 to-muted/30">
+        <div className="flex flex-col items-center justify-center py-16 px-4 border-2 border-dashed rounded-lg bg-linear-to-br from-muted/50 to-muted/30">
           <div className="text-center max-w-md space-y-6">
             {/* Icon */}
             <div className="mx-auto w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
@@ -313,7 +312,7 @@ export default function CardsPage() {
             <div
               key={card.id}
               className="group relative overflow-hidden rounded-lg border bg-card hover:shadow-lg transition-all cursor-pointer"
-              onClick={() => router.push(`/cards/${card.id}/edit`)}
+              onClick={() => router.push(`/cards/${card.id}`)}
             >
               {/* Card Preview */}
               <div className="h-[400px] overflow-hidden bg-muted/30">
@@ -321,7 +320,7 @@ export default function CardsPage() {
               </div>
 
               {/* Card Info Overlay */}
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent p-4 text-white">
+              <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 via-black/60 to-transparent p-4 text-white">
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-lg truncate">{card.name}</h3>
@@ -344,12 +343,24 @@ export default function CardsPage() {
                     className="flex-1"
                     onClick={(e) => {
                       e.stopPropagation();
+                      router.push(`/cards/${card.id}`);
+                    }}
+                  >
+                    <ExternalLink className="mr-2 h-3 w-3" />
+                    Edit
+                  </Button>
+                  {/* <Button
+                    variant="secondary"
+                    size="sm"
+                    className="flex-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
                       window.open(`/card/${card.slug}`, '_blank');
                     }}
                   >
                     <ExternalLink className="mr-2 h-3 w-3" />
                     View
-                  </Button>
+                  </Button> */}
                   {card.qrCodeUrl && (
                     <Button
                       variant="secondary"

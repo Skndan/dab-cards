@@ -1,0 +1,22 @@
+ALTER TABLE "cards" ALTER COLUMN "user_id" SET DATA TYPE varchar;--> statement-breakpoint
+ALTER TABLE "contacts" ALTER COLUMN "user_id" SET DATA TYPE varchar;--> statement-breakpoint
+ALTER TABLE "deal_rooms" ALTER COLUMN "user_id" SET DATA TYPE varchar;--> statement-breakpoint
+ALTER TABLE "deal_stages" ALTER COLUMN "user_id" SET DATA TYPE varchar;--> statement-breakpoint
+ALTER TABLE "deals" ALTER COLUMN "user_id" SET DATA TYPE varchar;--> statement-breakpoint
+ALTER TABLE "email_sequences" ALTER COLUMN "user_id" SET DATA TYPE varchar;--> statement-breakpoint
+ALTER TABLE "events" ALTER COLUMN "user_id" SET DATA TYPE varchar;--> statement-breakpoint
+ALTER TABLE "feedback_links" ALTER COLUMN "user_id" SET DATA TYPE varchar;--> statement-breakpoint
+ALTER TABLE "group_card_members" ALTER COLUMN "user_id" SET DATA TYPE varchar;--> statement-breakpoint
+ALTER TABLE "group_cards" ALTER COLUMN "user_id" SET DATA TYPE varchar;--> statement-breakpoint
+ALTER TABLE "integrations" ALTER COLUMN "user_id" SET DATA TYPE varchar;--> statement-breakpoint
+ALTER TABLE "introduction_suggestions" ALTER COLUMN "user_id" SET DATA TYPE varchar;--> statement-breakpoint
+ALTER TABLE "introductions" ALTER COLUMN "user_id" SET DATA TYPE varchar;--> statement-breakpoint
+ALTER TABLE "meeting_types" ALTER COLUMN "user_id" SET DATA TYPE varchar;--> statement-breakpoint
+ALTER TABLE "network_scores" ALTER COLUMN "user_id" SET DATA TYPE varchar;--> statement-breakpoint
+ALTER TABLE "notifications" ALTER COLUMN "user_id" SET DATA TYPE varchar;--> statement-breakpoint
+ALTER TABLE "scanning_events" ALTER COLUMN "user_id" SET DATA TYPE varchar;--> statement-breakpoint
+ALTER TABLE "subscriptions" ALTER COLUMN "user_id" SET DATA TYPE varchar;--> statement-breakpoint
+ALTER TABLE "team_members" ALTER COLUMN "user_id" SET DATA TYPE varchar;--> statement-breakpoint
+ALTER TABLE "teams" ALTER COLUMN "owner_id" SET DATA TYPE varchar;--> statement-breakpoint
+ALTER TABLE "virtual_backgrounds" ALTER COLUMN "user_id" SET DATA TYPE varchar;--> statement-breakpoint
+ALTER TABLE "voice_notes" ALTER COLUMN "user_id" SET DATA TYPE varchar;

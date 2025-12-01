@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     const { tokens } = await oauth2Client.getToken(code);
     
     const user = await db.query.users.findFirst({
-      where: eq(users.keycloakId, state),
+      where: eq(users.id, state),
     });
 
     if (!user) {

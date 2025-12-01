@@ -19,12 +19,12 @@ export async function GET(request: NextRequest) {
     const [user] = await db
       .insert(users)
       .values({
-        keycloakId: session.user.sub,
+        id: session.user.sub,
         email: session.user.email,
         name: session.user.name || session.user.preferred_username || 'Unknown User',
       })
       .onConflictDoUpdate({
-        target: users.keycloakId,
+        target: users.id,
         set: {
           email: session.user.email,
           name: session.user.name || session.user.preferred_username || 'Unknown User',
@@ -72,12 +72,12 @@ export async function POST(request: NextRequest) {
     const [user] = await db
       .insert(users)
       .values({
-        keycloakId: session.user.sub,
+        id: session.user.sub,
         email: session.user.email,
         name: session.user.name || session.user.preferred_username || 'Unknown User',
       })
       .onConflictDoUpdate({
-        target: users.keycloakId,
+        target: users.id,
         set: {
           email: session.user.email,
           name: session.user.name || session.user.preferred_username || 'Unknown User',
@@ -98,13 +98,11 @@ export async function POST(request: NextRequest) {
     // Convert data URL to buffer and upload to RustFS
     const qrCodeBuffer = Buffer.from(qrCodeDataUrl.split(',')[1], 'base64');
     const qrCodeKey = `qr-codes/${user.id}/${slug}.png`;
-    const qrCodeUrl = ``;
-    
-    // await uploadFile({
-    //   key: qrCodeKey,
-    //   file: qrCodeBuffer,
-    //   contentType: 'image/png',
-    // });
+    const qrCodeUrl = await uploadFile({
+      key: qrCodeKey,
+      file: qrCodeBuffer,
+      contentType: 'image/png',
+    });
 
     // Insert card into database
     const [newCard] = await db

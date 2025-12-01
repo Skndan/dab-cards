@@ -34,10 +34,10 @@ export default async function PublicCardPage({ params }: { params: { slug: strin
       <div className="mx-auto max-w-2xl px-4">
         <div className="overflow-hidden rounded-2xl bg-white shadow-xl">
           {/* Banner */}
-          {card.bannerImage && (
+          {card.coverImage && (
             <div className="relative h-48 w-full bg-gradient-to-r from-primary to-primary/80">
               <Image
-                src={card.bannerImage}
+                src={card.coverImage}
                 alt="Banner"
                 fill
                 className="object-cover"

@@ -9,16 +9,28 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  console.log('GET /api/cards/[id] - params:', params);
+  console.log('GET /api/cards/[id] - params.id:', params.id);
+  console.log('GET /api/cards/[id] - typeof params.id:', typeof params.id);
+
   const session = await getSession();
+  console.log('GET /api/cards/[id] - session:', session);
+  console.log('GET /api/cards/[id] - session.user:', session?.user);
+  console.log('GET /api/cards/[id] - session.user.sub:', session?.user?.sub);
 
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+  const { id } = await params;
 
+  console.log('GET /api/cards/[id] - destructured id:', id);
+  console.log('GET /api/cards/[id] - session.user.sub:', session.user.sub);
   try {
+    console.log('GET /api/cards/[id] - About to query with id:', id, 'userId:', session.user.sub);
     const card = await db.query.cards.findFirst({
-      where: and(eq(cards.id, params.id), eq(cards.userId, session.user.sub)),
+      where: and(eq(cards.id, id), eq(cards.userId, session.user.sub)),
     });
+    console.log('GET /api/cards/[id] - Query result:', card);
 
     if (!card) {
       return NextResponse.json({ error: 'Card not found' }, { status: 404 });
@@ -51,10 +63,10 @@ export async function PUT(
       email,
       phone,
       website,
-      profilePicture,
-      bannerImage,
-      logoImage,
-      socialLinks,
+      profileImage,
+      coverImage,
+      companyLogo,
+      content,
       payLinks,
       theme,
       customFields,
@@ -70,10 +82,10 @@ export async function PUT(
         email,
         phone,
         website,
-        profilePicture,
-        bannerImage,
-        logoImage,
-        socialLinks,
+        profileImage,
+        coverImage,
+        companyLogo,
+        content,
         payLinks,
         theme,
         customFields,

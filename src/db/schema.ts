@@ -5,8 +5,7 @@ import { pgTable, serial, varchar, integer, boolean, text, numeric, timestamp, j
 // ============================================
 
 export const users = pgTable('users', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  keycloakId: varchar('keycloak_id', { length: 255 }).unique().notNull(),
+  id: varchar('id', { length: 255 }).primaryKey(),
   email: varchar('email', { length: 255 }).unique().notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   avatarUrl: varchar('avatar_url', { length: 500 }),
@@ -16,7 +15,7 @@ export const users = pgTable('users', {
 
 export const cards = pgTable('cards', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: varchar('user_id').references(() => users.id).notNull(),
   slug: varchar('slug', { length: 255 }).unique().notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   title: varchar('title', { length: 255 }),
@@ -43,7 +42,7 @@ export const cards = pgTable('cards', {
 
 export const contacts = pgTable('contacts', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: varchar('user_id').references(() => users.id).notNull(),
   sourceCardId: uuid('source_card_id').references(() => cards.id),
   name: varchar('name', { length: 255 }).notNull(),
   email: varchar('email', { length: 255 }),
@@ -109,7 +108,7 @@ export const cardScans = pgTable('card_scans', {
 
 export const integrations = pgTable('integrations', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: varchar('user_id').references(() => users.id).notNull(),
   type: varchar('type', { length: 100 }).notNull(), // google_contacts, notion, google_calendar, microsoft_calendar
   accessToken: text('access_token'),
   refreshToken: text('refresh_token'),
@@ -123,7 +122,7 @@ export const integrations = pgTable('integrations', {
 
 export const subscriptions = pgTable('subscriptions', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: varchar('user_id').references(() => users.id).notNull(),
   plan: varchar('plan', { length: 50 }).notNull(), // starter, pro, team, business
   status: varchar('status', { length: 50 }).notNull(), // trial, active, cancelled, expired
   dodopaymentSubscriptionId: varchar('dodopayment_subscription_id', { length: 255 }),
@@ -137,7 +136,7 @@ export const subscriptions = pgTable('subscriptions', {
 
 export const events = pgTable('events', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: varchar('user_id').references(() => users.id).notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   date: timestamp('date').notNull(),
   location: varchar('location', { length: 500 }),
@@ -161,7 +160,7 @@ export const calendarSyncs = pgTable('calendar_syncs', {
 
 export const virtualBackgrounds = pgTable('virtual_backgrounds', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: varchar('user_id').references(() => users.id).notNull(),
   cardId: uuid('card_id').references(() => cards.id),
   name: varchar('name', { length: 255 }).notNull(),
   backgroundImageUrl: varchar('background_image_url', { length: 500 }).notNull(),
@@ -182,7 +181,7 @@ export const virtualBackgrounds = pgTable('virtual_backgrounds', {
 // Smart Introduction Engine
 export const introductions = pgTable('introductions', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: varchar('user_id').references(() => users.id).notNull(),
   fromContactId: uuid('from_contact_id').references(() => contacts.id).notNull(),
   toContactId: uuid('to_contact_id').references(() => contacts.id).notNull(),
   reason: text('reason'),
@@ -195,7 +194,7 @@ export const introductions = pgTable('introductions', {
 
 export const introductionSuggestions = pgTable('introduction_suggestions', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: varchar('user_id').references(() => users.id).notNull(),
   contact1Id: uuid('contact1_id').references(() => contacts.id).notNull(),
   contact2Id: uuid('contact2_id').references(() => contacts.id).notNull(),
   matchScore: numeric('match_score', { precision: 3, scale: 2 }), // 0.00-1.00
@@ -207,7 +206,7 @@ export const introductionSuggestions = pgTable('introduction_suggestions', {
 // Revenue Tracking
 export const deals = pgTable('deals', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: varchar('user_id').references(() => users.id).notNull(),
   contactId: uuid('contact_id').references(() => contacts.id).notNull(),
   sourceCardId: uuid('source_card_id').references(() => cards.id),
   title: varchar('title', { length: 255 }).notNull(),
@@ -223,7 +222,7 @@ export const deals = pgTable('deals', {
 
 export const dealStages = pgTable('deal_stages', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: varchar('user_id').references(() => users.id).notNull(),
   name: varchar('name', { length: 100 }).notNull(),
   order: integer('order').notNull(),
   conversionRate: numeric('conversion_rate', { precision: 5, scale: 2 }),
@@ -233,7 +232,7 @@ export const dealStages = pgTable('deal_stages', {
 // AI Email Sequences
 export const emailSequences = pgTable('email_sequences', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: varchar('user_id').references(() => users.id).notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   triggerType: varchar('trigger_type', { length: 100 }), // card_scan, manual, etc
   isActive: boolean('is_active').default(true),
@@ -280,7 +279,7 @@ export const cardUpdates = pgTable('card_updates', {
 
 export const notifications = pgTable('notifications', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: varchar('user_id').references(() => users.id).notNull(),
   type: varchar('type', { length: 100 }).notNull(),
   title: varchar('title', { length: 255 }).notNull(),
   content: text('content'),
@@ -292,7 +291,7 @@ export const notifications = pgTable('notifications', {
 // Smart Meeting Scheduler
 export const meetingTypes = pgTable('meeting_types', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: varchar('user_id').references(() => users.id).notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   slug: varchar('slug', { length: 255 }).notNull(),
   duration: integer('duration').notNull(), // in minutes
@@ -317,7 +316,7 @@ export const bookings = pgTable('bookings', {
 // Voice Note Follow-ups
 export const voiceNotes = pgTable('voice_notes', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: varchar('user_id').references(() => users.id).notNull(),
   contactId: uuid('contact_id').references(() => contacts.id).notNull(),
   audioUrl: varchar('audio_url', { length: 500 }).notNull(),
   transcript: text('transcript'),
@@ -359,7 +358,7 @@ export const suggestedComments = pgTable('suggested_comments', {
 // Deal Rooms
 export const dealRooms = pgTable('deal_rooms', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: varchar('user_id').references(() => users.id).notNull(),
   contactId: uuid('contact_id').references(() => contacts.id).notNull(),
   slug: varchar('slug', { length: 255 }).unique().notNull(),
   password: varchar('password', { length: 255 }),
@@ -390,7 +389,7 @@ export const dealRoomViews = pgTable('deal_room_views', {
 // Network Health Score
 export const networkScores = pgTable('network_scores', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: varchar('user_id').references(() => users.id).notNull(),
   score: integer('score').notNull(), // 0-100
   breakdownJson: jsonb('breakdown_json'), // detailed score breakdown
   calculationDate: timestamp('calculation_date').defaultNow().notNull(),
@@ -400,7 +399,7 @@ export const networkScores = pgTable('network_scores', {
 // Group Cards
 export const groupCards = pgTable('group_cards', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: varchar('user_id').references(() => users.id).notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   slug: varchar('slug', { length: 255 }).unique().notNull(),
   description: text('description'),
@@ -413,7 +412,7 @@ export const groupCards = pgTable('group_cards', {
 export const groupCardMembers = pgTable('group_card_members', {
   id: uuid('id').primaryKey().defaultRandom(),
   groupCardId: uuid('group_card_id').references(() => groupCards.id).notNull(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: varchar('user_id').references(() => users.id).notNull(),
   role: varchar('role', { length: 100 }), // CEO, CTO, Designer, etc
   order: integer('order').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -422,7 +421,7 @@ export const groupCardMembers = pgTable('group_card_members', {
 // Event Mode (Batch Scanning)
 export const scanningEvents = pgTable('scanning_events', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: varchar('user_id').references(() => users.id).notNull(),
   eventName: varchar('event_name', { length: 255 }).notNull(),
   eventDate: timestamp('event_date').notNull(),
   location: varchar('location', { length: 500 }),
@@ -462,7 +461,7 @@ export const contactTemperature = pgTable('contact_temperature', {
 // Anonymous Feedback
 export const feedbackLinks = pgTable('feedback_links', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: varchar('user_id').references(() => users.id).notNull(),
   slug: varchar('slug', { length: 255 }).unique().notNull(),
   question: text('question').notNull(),
   isActive: boolean('is_active').default(true),
@@ -484,7 +483,7 @@ export const teams = pgTable('teams', {
   id: uuid('id').primaryKey().defaultRandom(),
   name: varchar('name', { length: 255 }).notNull(),
   slug: varchar('slug', { length: 255 }).unique().notNull(),
-  ownerId: uuid('owner_id').references(() => users.id).notNull(),
+  ownerId: varchar('owner_id').references(() => users.id).notNull(),
   industry: varchar('industry', { length: 255 }),
   websiteUrl: varchar('website_url', { length: 500 }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -494,7 +493,7 @@ export const teams = pgTable('teams', {
 export const teamMembers = pgTable('team_members', {
   id: uuid('id').primaryKey().defaultRandom(),
   teamId: uuid('team_id').references(() => teams.id).notNull(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: varchar('user_id').references(() => users.id).notNull(),
   role: varchar('role', { length: 50 }).default('member'), // owner, admin, member
   joinedAt: timestamp('joined_at').defaultNow().notNull(),
 });

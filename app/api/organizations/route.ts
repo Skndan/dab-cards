@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
 
     // Get current user
     const user = await db.query.users.findFirst({
-      where: eq(users.keycloakId, session.user.sub),
+      where: eq(users.id, session.user.sub),
     });
 
     if (!user) {

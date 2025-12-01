@@ -51,6 +51,8 @@ export default function NewCardPage() {
         theme: cardData.theme,
       };
 
+      console.log(payload);
+      
       const response = await fetch('/api/cards', {
         method: 'POST',
         headers: {

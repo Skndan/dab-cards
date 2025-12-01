@@ -13,7 +13,7 @@ export default async function BillingPage() {
   }
 
   const user = await db.query.users.findFirst({
-    where: (users, { eq }) => eq(users.keycloakId, session.user.sub),
+    where: (users, { eq }) => eq(users.id, session.user.sub),
   });
 
   if (!user) {

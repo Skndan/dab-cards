@@ -62,7 +62,7 @@ async function handleTrialStarted(event: WebhookPayload) {
   if (!userId || !plan) return;
 
   const user = await db.query.users.findFirst({
-    where: eq(users.keycloakId, userId),
+    where: eq(users.id, userId),
   });
 
   if (!user) return;
@@ -101,7 +101,7 @@ async function handleSubscriptionCreated(event: WebhookPayload) {
   if (!userId || !plan) return;
 
   const user = await db.query.users.findFirst({
-    where: eq(users.keycloakId, userId),
+    where: eq(users.id, userId),
   });
 
   if (!user) return;

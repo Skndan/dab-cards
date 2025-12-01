@@ -33,7 +33,7 @@ export function SubscriptionProvider({ children }: React.PropsWithChildren) {
           setIsLoading(false);
         }
       };
-      fetchSubscription();
+      // fetchSubscription();
     } else {
       // User is not authenticated and auth has finished loading
       setSubscription(null);
