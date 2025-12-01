@@ -1,6 +1,6 @@
 "use client";
 
-import { CardData, ImageConfig, ProfileLayout } from "@/types/card";
+import { CardData, ImageConfig } from "@/types/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,7 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Upload, Image as ImageIcon, Building2, LayoutTemplate, Wallpaper, X } from "lucide-react";
 import { ImageUploadDialog } from "./image-upload-dialog";
 import { useState } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface ProfileEditorProps {
   data: CardData;
@@ -17,6 +23,7 @@ interface ProfileEditorProps {
 
 export function ProfileEditor({ data, onChange }: ProfileEditorProps) {
   const [activeUploadField, setActiveUploadField] = useState<keyof CardData | 'backgroundImageUrl' | null>(null);
+  const [layoutDialogOpen, setLayoutDialogOpen] = useState(false);
 
   const handleChange = (field: keyof CardData, value: any) => {
     onChange({ ...data, [field]: value });
@@ -72,40 +79,95 @@ export function ProfileEditor({ data, onChange }: ProfileEditorProps) {
         aspectRatio={getAspectRatio()}
       />
 
-      {/* Layout Selector */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">Layout</h3>
-        <div className="grid grid-cols-3 gap-3">
-          {[
-            { id: 'classic', label: 'Classic' },
-            { id: 'modern', label: 'Modern' },
-            { id: 'minimal', label: 'Minimal' },
-            { id: 'left', label: 'Left Aligned' },
-            { id: 'compact', label: 'Compact' },
-            { id: 'centered', label: 'Centered' }
-          ].map((layout) => (
-            <button
-              key={layout.id}
-              className={`flex flex-col items-center gap-2 rounded-lg border-2 p-3 transition-all ${data.theme.profileLayout === layout.id ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'}`}
-              onClick={() => handleThemeChange('profileLayout', layout.id)}
-            >
-              <div className="h-10 w-full rounded bg-muted/50 flex items-center justify-center">
-                <LayoutTemplate className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <span className="text-xs font-medium">{layout.label}</span>
-            </button>
-          ))}
-        </div>
+      {/* Card Label */}
+      <div className="space-y-3">
+        <h3 className="text-base font-medium">Label this card</h3>
+        <Input
+          value={data.cardName || ''}
+          onChange={(e) => handleChange("cardName", e.target.value)}
+          placeholder="Card 01"
+          className="text-base"
+        />
       </div>
 
+      {/* Images Section */}
       <div className="space-y-4">
-        <h3 className="text-lg font-medium">Images</h3>
-        <div className="grid grid-cols-2 gap-4">
-          {/* Profile Image */}
+        <div className="flex items-center justify-between">
+          <h3 className="text-base font-medium">Add images</h3>
+
+          <Dialog open={layoutDialogOpen} onOpenChange={setLayoutDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm">
+                Change Layout
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Choose Layout</DialogTitle>
+              </DialogHeader>
+              <div className="grid grid-cols-2 gap-3 py-4">
+                {[
+                  { id: 'classic', label: 'Classic' },
+                  { id: 'modern', label: 'Modern' },
+                  { id: 'minimal', label: 'Minimal' },
+                  { id: 'left', label: 'Left Aligned' },
+                  { id: 'compact', label: 'Compact' },
+                  { id: 'centered', label: 'Centered' }
+                ].map((layout) => (
+                  <button
+                    key={layout.id}
+                    className={`flex flex-col items-center gap-2 rounded-lg border-2 p-3 transition-all ${data.theme.profileLayout === layout.id ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'
+                      }`}
+                    onClick={() => {
+                      handleThemeChange('profileLayout', layout.id);
+                      setLayoutDialogOpen(false);
+                    }}
+                  >
+                    <div className="h-10 w-full rounded bg-muted/50 flex items-center justify-center">
+                      <LayoutTemplate className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                    <span className="text-xs font-medium">{layout.label}</span>
+                  </button>
+                ))}
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        {/* Image Upload Boxes */}
+        <div className="grid grid-cols-4 gap-4">
+          {/* Company Logo */}
           <div className="space-y-2">
-            <Label>Profile</Label>
             <div
-              className="relative flex aspect-square cursor-pointer items-center justify-center rounded-full border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 overflow-hidden group"
+              className="relative flex aspect-square cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 bg-muted/10 overflow-hidden group"
+              onClick={() => setActiveUploadField('companyLogo')}
+            >
+              {getImageSrc('companyLogo') ? (
+                <>
+                  <img src={getImageSrc('companyLogo')!} alt="Logo" className="h-full w-full object-contain p-3" />
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleChange('companyLogo', undefined);
+                    }}
+                    className="absolute top-2 right-2 h-6 w-6 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </>
+              ) : (
+                <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                  <Upload className="h-6 w-6" />
+                </div>
+              )}
+            </div>
+            <p className="text-sm text-center text-muted-foreground">Company Logo</p>
+          </div>
+
+          {/* Profile Picture */}
+          <div className="space-y-2">
+            <div
+              className="relative flex aspect-square cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 bg-muted/10 overflow-hidden group"
               onClick={() => setActiveUploadField('profileImage')}
             >
               {getImageSrc('profileImage') ? (
@@ -118,46 +180,22 @@ export function ProfileEditor({ data, onChange }: ProfileEditorProps) {
                     }}
                     className="absolute top-2 right-2 h-6 w-6 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-3 w-3" />
                   </button>
                 </>
               ) : (
-                <Upload className="h-6 w-6 text-muted-foreground" />
+                <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                  <Upload className="h-6 w-6" />
+                </div>
               )}
             </div>
+            <p className="text-sm text-center text-muted-foreground">Profile Picture</p>
           </div>
 
-          {/* Company Logo */}
+          {/* Cover Photo */}
           <div className="space-y-2">
-            <Label>Logo</Label>
             <div
-              className="relative flex aspect-square cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 overflow-hidden group"
-              onClick={() => setActiveUploadField('companyLogo')}
-            >
-              {getImageSrc('companyLogo') ? (
-                <>
-                  <img src={getImageSrc('companyLogo')!} alt="Logo" className="h-full w-full object-contain p-2" />
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleChange('companyLogo', undefined);
-                    }}
-                    className="absolute top-2 right-2 h-6 w-6 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </>
-              ) : (
-                <Building2 className="h-6 w-6 text-muted-foreground" />
-              )}
-            </div>
-          </div>
-
-          {/* Cover Image */}
-          <div className="space-y-2 col-span-2">
-            <Label>Cover</Label>
-            <div
-              className="relative flex aspect-video cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 overflow-hidden group"
+              className="relative flex aspect-square cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 bg-muted/10 overflow-hidden group"
               onClick={() => setActiveUploadField('coverImage')}
             >
               {getImageSrc('coverImage') ? (
@@ -170,25 +208,27 @@ export function ProfileEditor({ data, onChange }: ProfileEditorProps) {
                     }}
                     className="absolute top-2 right-2 h-6 w-6 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-3 w-3" />
                   </button>
                 </>
               ) : (
-                <ImageIcon className="h-6 w-6 text-muted-foreground" />
+                <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                  <Upload className="h-6 w-6" />
+                </div>
               )}
             </div>
+            <p className="text-sm text-center text-muted-foreground">Cover Photo</p>
           </div>
 
-          {/* Background Image */}
-          <div className="space-y-2 col-span-2">
-            <Label>Background</Label>
+          {/* Cover Photo */}
+          <div className="space-y-2">
             <div
-              className="relative flex aspect-video cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 overflow-hidden group"
+              className="relative flex aspect-square cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 bg-muted/10 overflow-hidden group"
               onClick={() => setActiveUploadField('backgroundImageUrl')}
             >
               {getImageSrc('backgroundImageUrl') ? (
                 <>
-                  <img src={getImageSrc('backgroundImageUrl')!} alt="Background" className="h-full w-full object-cover" />
+                  <img src={getImageSrc('backgroundImageUrl')!} alt="Cover" className="h-full w-full object-cover" />
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -196,14 +236,16 @@ export function ProfileEditor({ data, onChange }: ProfileEditorProps) {
                     }}
                     className="absolute top-2 right-2 h-6 w-6 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-3 w-3" />
                   </button>
                 </>
               ) : (
-                <Wallpaper className="h-6 w-6 text-muted-foreground" />
+                <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                  <Upload className="h-6 w-6" />
+                </div>
               )}
             </div>
-            <p className="text-xs text-muted-foreground">Optional subtle background image</p>
+            <p className="text-sm text-center text-muted-foreground">Background Image (Optional)</p>
           </div>
         </div>
       </div>
@@ -241,7 +283,6 @@ export function ProfileEditor({ data, onChange }: ProfileEditorProps) {
           </div>
         </div>
       </div>
-
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Company Info</h3>
         <div className="grid grid-cols-2 gap-4">
@@ -313,3 +354,5 @@ export function ProfileEditor({ data, onChange }: ProfileEditorProps) {
     </div>
   );
 }
+
+

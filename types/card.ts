@@ -57,6 +57,9 @@ export interface CardTheme {
 }
 
 export interface CardData {
+  // Card Metadata
+  cardName?: string; // Optional label/name for the card (e.g., "Work Card", "Personal Card")
+
   // Profile
   profileImage?: string | ImageConfig;
   coverImage?: string | ImageConfig;
@@ -80,3 +83,4 @@ export interface CardData {
   // Appearance
   theme: CardTheme;
 }
+
