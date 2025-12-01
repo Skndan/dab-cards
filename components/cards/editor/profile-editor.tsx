@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Upload, Image as ImageIcon, Building2, LayoutTemplate } from "lucide-react";
+import { Upload, Image as ImageIcon, Building2, LayoutTemplate, Wallpaper, X } from "lucide-react";
 import { ImageUploadDialog } from "./image-upload-dialog";
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -16,7 +16,7 @@ interface ProfileEditorProps {
 }
 
 export function ProfileEditor({ data, onChange }: ProfileEditorProps) {
-  const [activeUploadField, setActiveUploadField] = useState<keyof CardData | null>(null);
+  const [activeUploadField, setActiveUploadField] = useState<keyof CardData | 'backgroundImageUrl' | null>(null);
 
   const handleChange = (field: keyof CardData, value: any) => {
     onChange({ ...data, [field]: value });
@@ -28,14 +28,28 @@ export function ProfileEditor({ data, onChange }: ProfileEditorProps) {
 
   const handleImageSave = (config: ImageConfig) => {
     if (activeUploadField) {
-      handleChange(activeUploadField, config);
+      if (activeUploadField === 'backgroundImageUrl') {
+        handleThemeChange('backgroundImageUrl', config.url ? config.url : undefined);
+      } else {
+        handleChange(activeUploadField as keyof CardData, config.url ? config : undefined);
+      }
+      setActiveUploadField(null);
     }
   };
 
-  const getImageSrc = (field: keyof CardData) => {
-    const val = data[field];
+  const getImageSrc = (field: keyof CardData | 'backgroundImageUrl') => {
+    if (field === 'backgroundImageUrl') {
+      return data.theme.backgroundImageUrl || null;
+    }
+    const val = data[field as keyof CardData];
     if (!val) return null;
     return typeof val === 'string' ? val : (val as ImageConfig).url;
+  };
+
+  const getAspectRatio = () => {
+    if (activeUploadField === 'coverImage') return 16 / 9;
+    if (activeUploadField === 'backgroundImageUrl') return 9 / 16;
+    return 1;
   };
 
   return (
@@ -43,31 +57,42 @@ export function ProfileEditor({ data, onChange }: ProfileEditorProps) {
       <ImageUploadDialog
         open={!!activeUploadField}
         onOpenChange={(open) => !open && setActiveUploadField(null)}
-        title={activeUploadField === 'coverImage' ? 'Edit Cover Image' : 'Edit Profile Image'}
-        currentImage={activeUploadField ? data[activeUploadField] as string | ImageConfig : undefined}
+        title={
+          activeUploadField === 'coverImage' ? 'Edit Cover Image' :
+            activeUploadField === 'backgroundImageUrl' ? 'Edit Background Image' :
+              activeUploadField === 'companyLogo' ? 'Edit Company Logo' :
+                'Edit Profile Image'
+        }
+        currentImage={activeUploadField ? (
+          activeUploadField === 'backgroundImageUrl' ?
+            data.theme.backgroundImageUrl :
+            data[activeUploadField as keyof CardData]
+        ) as string | ImageConfig : undefined}
         onSave={handleImageSave}
-        aspectRatio={activeUploadField === 'coverImage' ? 16 / 9 : 1}
+        aspectRatio={getAspectRatio()}
       />
 
       {/* Layout Selector */}
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Layout</h3>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-3">
           {[
-            { id: 'classic', label: 'Classic', icon: 'Layout 1' },
-            { id: 'left', label: 'Left Aligned', icon: 'Layout 2' },
-            { id: 'modern', label: 'Modern', icon: 'Layout 3' }
+            { id: 'classic', label: 'Classic' },
+            { id: 'modern', label: 'Modern' },
+            { id: 'minimal', label: 'Minimal' },
+            { id: 'left', label: 'Left Aligned' },
+            { id: 'compact', label: 'Compact' },
+            { id: 'centered', label: 'Centered' }
           ].map((layout) => (
             <button
               key={layout.id}
-              className={`flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-all ${data.theme.profileLayout === layout.id ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'}`}
+              className={`flex flex-col items-center gap-2 rounded-lg border-2 p-3 transition-all ${data.theme.profileLayout === layout.id ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'}`}
               onClick={() => handleThemeChange('profileLayout', layout.id)}
             >
-              <div className="h-12 w-full rounded bg-muted/50 flex items-center justify-center">
-                {/* Placeholder for layout visual */}
-                <LayoutTemplate className="h-6 w-6 text-muted-foreground" />
+              <div className="h-10 w-full rounded bg-muted/50 flex items-center justify-center">
+                <LayoutTemplate className="h-5 w-5 text-muted-foreground" />
               </div>
-              <span className="text-sm font-medium">{layout.label}</span>
+              <span className="text-xs font-medium">{layout.label}</span>
             </button>
           ))}
         </div>
@@ -75,33 +100,29 @@ export function ProfileEditor({ data, onChange }: ProfileEditorProps) {
 
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Images</h3>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           {/* Profile Image */}
           <div className="space-y-2">
             <Label>Profile</Label>
             <div
-              className="relative flex aspect-square cursor-pointer items-center justify-center rounded-full border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 overflow-hidden"
+              className="relative flex aspect-square cursor-pointer items-center justify-center rounded-full border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 overflow-hidden group"
               onClick={() => setActiveUploadField('profileImage')}
             >
               {getImageSrc('profileImage') ? (
-                <img src={getImageSrc('profileImage')!} alt="Profile" className="h-full w-full object-cover" />
+                <>
+                  <img src={getImageSrc('profileImage')!} alt="Profile" className="h-full w-full object-cover" />
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleChange('profileImage', undefined);
+                    }}
+                    className="absolute top-2 right-2 h-6 w-6 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </>
               ) : (
                 <Upload className="h-6 w-6 text-muted-foreground" />
-              )}
-            </div>
-          </div>
-
-          {/* Cover Image */}
-          <div className="space-y-2">
-            <Label>Cover</Label>
-            <div
-              className="relative flex aspect-video cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 overflow-hidden"
-              onClick={() => setActiveUploadField('coverImage')}
-            >
-              {getImageSrc('coverImage') ? (
-                <img src={getImageSrc('coverImage')!} alt="Cover" className="h-full w-full object-cover" />
-              ) : (
-                <ImageIcon className="h-6 w-6 text-muted-foreground" />
               )}
             </div>
           </div>
@@ -110,15 +131,79 @@ export function ProfileEditor({ data, onChange }: ProfileEditorProps) {
           <div className="space-y-2">
             <Label>Logo</Label>
             <div
-              className="relative flex aspect-square cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 overflow-hidden"
+              className="relative flex aspect-square cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 overflow-hidden group"
               onClick={() => setActiveUploadField('companyLogo')}
             >
               {getImageSrc('companyLogo') ? (
-                <img src={getImageSrc('companyLogo')!} alt="Logo" className="h-full w-full object-contain p-2" />
+                <>
+                  <img src={getImageSrc('companyLogo')!} alt="Logo" className="h-full w-full object-contain p-2" />
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleChange('companyLogo', undefined);
+                    }}
+                    className="absolute top-2 right-2 h-6 w-6 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </>
               ) : (
                 <Building2 className="h-6 w-6 text-muted-foreground" />
               )}
             </div>
+          </div>
+
+          {/* Cover Image */}
+          <div className="space-y-2 col-span-2">
+            <Label>Cover</Label>
+            <div
+              className="relative flex aspect-video cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 overflow-hidden group"
+              onClick={() => setActiveUploadField('coverImage')}
+            >
+              {getImageSrc('coverImage') ? (
+                <>
+                  <img src={getImageSrc('coverImage')!} alt="Cover" className="h-full w-full object-cover" />
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleChange('coverImage', undefined);
+                    }}
+                    className="absolute top-2 right-2 h-6 w-6 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </>
+              ) : (
+                <ImageIcon className="h-6 w-6 text-muted-foreground" />
+              )}
+            </div>
+          </div>
+
+          {/* Background Image */}
+          <div className="space-y-2 col-span-2">
+            <Label>Background</Label>
+            <div
+              className="relative flex aspect-video cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 overflow-hidden group"
+              onClick={() => setActiveUploadField('backgroundImageUrl')}
+            >
+              {getImageSrc('backgroundImageUrl') ? (
+                <>
+                  <img src={getImageSrc('backgroundImageUrl')!} alt="Background" className="h-full w-full object-cover" />
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleThemeChange('backgroundImageUrl', undefined);
+                    }}
+                    className="absolute top-2 right-2 h-6 w-6 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </>
+              ) : (
+                <Wallpaper className="h-6 w-6 text-muted-foreground" />
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">Optional subtle background image</p>
           </div>
         </div>
       </div>

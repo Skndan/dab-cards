@@ -37,7 +37,7 @@ export interface LinkCollection {
 
 export type CardContentItem = LinkItem | LinkCollection;
 
-export type ProfileLayout = 'classic' | 'modern' | 'minimal' | 'left';
+export type ProfileLayout = 'classic' | 'modern' | 'minimal' | 'left' | 'compact' | 'centered';
 
 export interface ImageConfig {
   url: string;

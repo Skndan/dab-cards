@@ -27,6 +27,7 @@ export function AppearanceEditor({ data, onChange }: AppearanceEditorProps) {
     { name: "Playfair Display", value: "Playfair Display" },
     { name: "Montserrat", value: "Montserrat" },
     { name: "Open Sans", value: "Open Sans" },
+    { name: "Gabarito", value: "Gabarito" },
   ];
 
   const buttonStyles = [

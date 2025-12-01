@@ -59,7 +59,7 @@ export function CardPreview({ data }: CardPreviewProps) {
       case 'square': return 'rounded-none';
       case 'pill': return 'rounded-full';
       case 'outline': return 'rounded-xl border-2 bg-transparent';
-      default: return 'rounded-xl'; // rounded
+      default: return 'rounded-xl';
     }
   };
 
@@ -81,7 +81,6 @@ export function CardPreview({ data }: CardPreviewProps) {
         </div>
       );
     }
-    // Use SVG for standard platforms
     return (
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 group-hover:bg-gray-200 transition-colors p-2">
         <img src="/google-icon.svg" alt={link.platform} className="h-full w-full object-contain" />
@@ -134,16 +133,19 @@ export function CardPreview({ data }: CardPreviewProps) {
     </div>
   );
 
+  // Determine which images are available
+  const hasProfileImage = !!(typeof data.profileImage === 'string' ? data.profileImage : data.profileImage?.url);
+  const hasCoverImage = !!(typeof data.coverImage === 'string' ? data.coverImage : data.coverImage?.url);
+  const hasCompanyLogo = !!(typeof data.companyLogo === 'string' ? data.companyLogo : data.companyLogo?.url);
+
   return (
     <div ref={containerRef} className="flex h-full w-full items-center justify-center bg-muted/50 p-8 overflow-hidden">
       <div
         className="relative h-[800px] w-[375px] shrink-0 overflow-hidden rounded-[3rem] border-8 border-gray-900 bg-white shadow-2xl transition-transform duration-200 ease-out origin-center"
         style={{ transform: `scale(${scale})` }}
       >
-        {/* Notch */}
         <div className="absolute left-1/2 top-0 z-20 h-6 w-32 -translate-x-1/2 rounded-b-2xl bg-gray-900"></div>
 
-        {/* Content Container */}
         <div
           className="h-full overflow-y-auto bg-white scrollbar-hide"
           style={{
@@ -151,12 +153,11 @@ export function CardPreview({ data }: CardPreviewProps) {
             backgroundColor: data.theme.backgroundColor,
           }}
         >
-          {/* Background Image Overlay */}
           {data.theme.backgroundImageUrl && (
             <div
               className="absolute inset-0 z-0 opacity-20 pointer-events-none"
               style={{
-                backgroundImage: `url(${data.theme.backgroundImageUrl})`,
+                backgroundImage: ` url(${data.theme.backgroundImageUrl})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center'
               }}
@@ -164,84 +165,140 @@ export function CardPreview({ data }: CardPreviewProps) {
           )}
 
           <div className="relative z-10">
-            {/* Cover Image */}
-            <div
-              className="h-32 w-full bg-gray-200"
-              style={{
-                backgroundColor: data.theme.primaryColor,
-                ...getImageStyle(data.coverImage)
-              }}
-            />
-
-            {/* Profile Header - Layout Logic */}
-            <div className={`relative px-6 ${data.theme.profileLayout === 'left' ? 'text-left' : 'text-center'}`}>
+            {hasCoverImage && (
               <div
-                className={`
-                            relative -mt-12 h-24 w-24 overflow-hidden rounded-full border-4 border-white bg-gray-100 shadow-md
-                            ${data.theme.profileLayout === 'left' ? '' : 'mx-auto'}
-                        `}
-              >
-                {data.profileImage ? (
-                  <div className="h-full w-full" style={getImageStyle(data.profileImage)} />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-gray-100 text-2xl font-bold text-gray-400">
-                    {data.name ? data.name.charAt(0) : "?"}
-                  </div>
-                )}
-              </div>
+                className="h-32 w-full bg-gray-200"
+                style={{
+                  backgroundColor: data.theme.primaryColor,
+                  ...getImageStyle(data.coverImage)
+                }}
+              />
+            )}
 
-              <div className="mt-3 space-y-1">
-                <h1 className="text-xl font-bold text-gray-900">{data.name || "Your Name"}</h1>
+            <div className={`relative px-6 ${data.theme.profileLayout === 'left' || data.theme.profileLayout === 'compact' ? 'text-left' : 'text-center'
+              }`}
+              style={{
+                marginTop: hasCoverImage ?
+                  (data.theme.profileLayout === 'compact' ? '-2rem' : '-3rem') :
+                  (data.theme.profileLayout === 'compact' ? '0.75rem' : '1.5rem')
+              }}>
+
+              {(hasProfileImage || hasCompanyLogo) && (
+                <div className={`flex items-end ${data.theme.profileLayout === 'left' || data.theme.profileLayout === 'compact' ? 'justify-between' : 'justify-center'
+                  } ${data.theme.profileLayout === 'compact' ? 'mb-2' : ''} ${hasProfileImage && hasCompanyLogo ? 'gap-4' : 'gap-3'
+                  }`}>
+
+                  <div className="flex items-end gap-3">
+                    {hasProfileImage && (
+                      <div className={`relative ${data.theme.profileLayout === 'compact' ? 'h-16 w-16' :
+                          data.theme.profileLayout === 'minimal' ? 'h-20 w-20' :
+                            'h-24 w-24'
+                        } overflow-hidden rounded-full border-4 border-white bg-gray-100 shadow-md`}>
+                        <div className="h-full w-full" style={getImageStyle(data.profileImage)} />
+                      </div>
+                    )}
+
+                    {hasCompanyLogo && !hasProfileImage && (
+                      <div className={`relative ${data.theme.profileLayout === 'compact' ? 'h-16 w-16' : 'h-24 w-24'
+                        } overflow-hidden rounded-lg border-4 border-white bg-white shadow-md p-2`}>
+                        <div className="h-full w-full" style={getImageStyle(data.companyLogo)} />
+                      </div>
+                    )}
+                  </div>
+
+                  {hasCompanyLogo && hasProfileImage && (
+                    <div className={`relative ${data.theme.profileLayout === 'compact' ? 'h-14 w-14' : 'h-20 w-20'
+                      } overflow-hidden rounded-lg border-2 border-white bg-white shadow-md p-2`}>
+                      <div className="h-full w-full" style={getImageStyle(data.companyLogo)} />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className={`${data.theme.profileLayout === 'compact' ? 'mt-2 space-y-0.5' : 'mt-3 space-y-1'}`}>
+                <h1 className={`${data.theme.profileLayout === 'compact' ? 'text-lg' :
+                    data.theme.profileLayout === 'minimal' ? 'text-2xl' :
+                      data.theme.profileLayout === 'modern' ? 'text-2xl tracking-tight' :
+                        'text-xl'
+                  } font-bold text-gray-900`}>{data.name || "Your Name"}</h1>
 
                 {(data.title || data.company) && (
-                  <div className={`flex flex-col ${data.theme.profileLayout === 'left' ? 'items-start' : 'items-center'} text-sm text-gray-600`}>
-                    {data.title && <span className="font-medium">{data.title}</span>}
+                  <div className={`flex flex-col ${data.theme.profileLayout === 'left' || data.theme.profileLayout === 'compact' ? 'items-start' : 'items-center'
+                    } ${data.theme.profileLayout === 'compact' ? 'text-xs' :
+                      data.theme.profileLayout === 'modern' ? 'text-base' :
+                        'text-sm'
+                    } text-gray-600 ${data.theme.profileLayout === 'minimal' ? 'gap-1' : ''}`}>
+                    {data.title && <span className={`font-medium ${data.theme.profileLayout === 'modern' ? 'text-gray-800' : ''
+                      }`}>{data.title}</span>}
                     {data.company && (
                       <span className="flex items-center gap-1 opacity-80">
-                        {data.companyLogo && (
-                          <div className="h-4 w-4 overflow-hidden rounded-sm">
-                            <div className="h-full w-full" style={getImageStyle(data.companyLogo)} />
-                          </div>
-                        )}
+                        <Building2 className="h-3 w-3" />
                         {data.company}
                       </span>
                     )}
                   </div>
                 )}
 
-                {data.bio && <p className={`mt-2 text-sm text-gray-600 max-w-[280px] ${data.theme.profileLayout === 'left' ? '' : 'mx-auto'}`}>{data.bio}</p>}
-              </div>
-
-              {/* Location & Contact */}
-              <div className={`mt-4 flex flex-wrap gap-3 text-xs text-gray-500 ${data.theme.profileLayout === 'left' ? 'justify-start' : 'justify-center'}`}>
-                {data.location && (
-                  <span className="flex items-center gap-1">
-                    <MapPin className="h-3 w-3" /> {data.location}
-                  </span>
+                {data.bio && (
+                  <p className={`${data.theme.profileLayout === 'compact' ? 'mt-1 text-xs' :
+                      data.theme.profileLayout === 'minimal' ? 'mt-3 text-sm' :
+                        'mt-2 text-sm'
+                    } text-gray-600 max-w-[280px] ${data.theme.profileLayout === 'left' || data.theme.profileLayout === 'compact' ? '' : 'mx-auto'
+                    } ${data.theme.profileLayout === 'minimal' ? 'leading-relaxed' : ''}`}>{data.bio}</p>
                 )}
               </div>
+
+              {data.location && (
+                <div className={`${data.theme.profileLayout === 'compact' ? 'mt-2' : 'mt-4'
+                  } flex flex-wrap gap-3 ${data.theme.profileLayout === 'compact' ? 'text-[10px]' : 'text-xs'
+                  } text-gray-500 ${data.theme.profileLayout === 'left' || data.theme.profileLayout === 'compact' ? 'justify-start' : 'justify-center'
+                  }`}>
+                  <span className="flex items-center gap-1">
+                    <MapPin className={`${data.theme.profileLayout === 'compact' ? 'h-2.5 w-2.5' : 'h-3 w-3'}`} /> {data.location}
+                  </span>
+                </div>
+              )}
             </div>
 
-            {/* Contact Actions (Sticky Bar style) */}
-            <div className="mt-6 flex justify-center gap-4 px-6">
+            <div className={`${data.theme.profileLayout === 'compact' ? 'mt-3' :
+                data.theme.profileLayout === 'minimal' ? 'mt-8' :
+                  'mt-6'
+              } flex justify-center gap-4 px-6`}>
               {data.email && (
-                <a href={`mailto:${data.email}`} className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-900 transition-colors hover:bg-gray-200 shadow-sm">
-                  <Mail className="h-5 w-5" />
+                <a href={`mailto:${data.email}`} className={`flex ${data.theme.profileLayout === 'compact' ? 'h-8 w-8' :
+                    data.theme.profileLayout === 'modern' ? 'h-12 w-12' :
+                      'h-10 w-10'
+                  } items-center justify-center rounded-full bg-gray-100 text-gray-900 transition-colors hover:bg-gray-200 shadow-sm`}>
+                  <Mail className={`${data.theme.profileLayout === 'compact' ? 'h-4 w-4' :
+                      data.theme.profileLayout === 'modern' ? 'h-6 w-6' :
+                        'h-5 w-5'
+                    }`} />
                 </a>
               )}
               {data.phone && (
-                <a href={`tel:${data.phone}`} className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-900 transition-colors hover:bg-gray-200 shadow-sm">
-                  <Phone className="h-5 w-5" />
+                <a href={`tel:${data.phone}`} className={`flex ${data.theme.profileLayout === 'compact' ? 'h-8 w-8' :
+                    data.theme.profileLayout === 'modern' ? 'h-12 w-12' :
+                      'h-10 w-10'
+                  } items-center justify-center rounded-full bg-gray-100 text-gray-900 transition-colors hover:bg-gray-200 shadow-sm`}>
+                  <Phone className={`${data.theme.profileLayout === 'compact' ? 'h-4 w-4' :
+                      data.theme.profileLayout === 'modern' ? 'h-6 w-6' :
+                        'h-5 w-5'
+                    }`} />
                 </a>
               )}
               {data.website && (
-                <a href={data.website} target="_blank" rel="noopener noreferrer" className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-900 transition-colors hover:bg-gray-200 shadow-sm">
-                  <Globe className="h-5 w-5" />
+                <a href={data.website} target="_blank" rel="noopener noreferrer" className={`flex ${data.theme.profileLayout === 'compact' ? 'h-8 w-8' :
+                    data.theme.profileLayout === 'modern' ? 'h-12 w-12' :
+                      'h-10 w-10'
+                  } items-center justify-center rounded-full bg-gray-100 text-gray-900 transition-colors hover:bg-gray-200 shadow-sm`}>
+                  <Globe className={`${data.theme.profileLayout === 'compact' ? 'h-4 w-4' :
+                      data.theme.profileLayout === 'modern' ? 'h-6 w-6' :
+                        'h-5 w-5'
+                    }`} />
                 </a>
               )}
             </div>
 
-            {/* Content List */}
             <div className="mt-8 space-y-4 px-6 pb-12">
               {data.content.map((item) => {
                 if (item.type === 'collection') {
