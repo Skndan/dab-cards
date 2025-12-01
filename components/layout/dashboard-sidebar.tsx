@@ -69,7 +69,7 @@ export function DashboardSidebar({ links }: DashboardSidebarProps) {
               <SidebarMenu>
                 {section.items.map((item) => {
                   if (!item.href) return null;
-                  const Icon = Icons[item.icon || "arrowRight"];
+                  const Icon =  Icons[item.icon as keyof typeof Icons] || Icons.arrowRight;
                   const isActive = !!path.match(item.href);
 
                   return (
@@ -145,7 +145,7 @@ export function MobileSheetSidebar({ links }: DashboardSidebarProps) {
                     <div className="flex flex-col gap-1">
                       {section.items.map((item) => {
                         if (!item.href) return null;
-                        const Icon = Icons[item.icon || "arrowRight"];
+                        const Icon = Icons[item.icon as keyof typeof Icons] || Icons.arrowRight;
                         const isActive = !!path.match(item.href);
 
                         return (

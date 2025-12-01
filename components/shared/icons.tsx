@@ -3,23 +3,55 @@ import {
   LucideIcon,
   LucideProps,
   SunMedium,
+  LayoutDashboard,
+  IdCard,
+  CalendarRange,
+  MonitorPlay,
+  Users2,
+  Sparkles,
+  TrendingUp,
+  Send,
+  ScanLine,
+  Activity,
+  AlarmClock,
+  MessageCircle,
+  FolderKanban,
+  BarChart3,
+  LineChart,
+  CreditCard,
+  ArrowRight,
+  Moon,
 } from "lucide-react";
 
 export type Icon = LucideIcon;
 
 export const Icons = {
+  // existing
   spinner: Loader2,
   sun: SunMedium,
-  moon: SunMedium,
-  arrowRight: SunMedium,
-  laptop: SunMedium,
-  dashboard: SunMedium,
-  link: SunMedium,
-  settings: SunMedium,
-  bookOpen: SunMedium,
-  repos: SunMedium,
-  post: SunMedium,
-  user: SunMedium,
+  moon: Moon,
+  arrowRight: ArrowRight,
+
+  // core navigation
+  dashboard: LayoutDashboard,
+  user: Users2,
+
+  // new for dashboard menus
+  idCard: IdCard,
+  calendar: CalendarRange,
+  monitorPlay: MonitorPlay,
+  users: Users2,
+  sparkles: Sparkles,
+  trendingUp: TrendingUp,
+  send: Send,
+  scanLine: ScanLine,
+  activity: Activity,
+  alarmClock: AlarmClock,
+  messageCircle: MessageCircle,
+  folderKanban: FolderKanban,
+  barChart3: BarChart3,
+  lineChart: LineChart,
+  creditCard: CreditCard,
   gitHub: ({ ...props }: LucideProps) => (
     <svg
       aria-hidden="true"

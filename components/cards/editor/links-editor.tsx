@@ -20,9 +20,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, GripVertical, Trash2, Edit2, Link as LinkIcon, FolderPlus, ArrowUp, ArrowDown, ChevronRight, ChevronDown, Smile } from "lucide-react";
+import { Plus, GripVertical, Trash2, Edit2, FolderPlus, ChevronRight, ChevronDown } from "lucide-react";
 import { useState } from "react";
-import { Reorder, useDragControls } from "framer-motion";
+import { Reorder } from "framer-motion";
 import { Switch } from "@/components/ui/switch";
 
 interface LinksEditorProps {
