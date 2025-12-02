@@ -7,26 +7,18 @@ import { eq, and } from 'drizzle-orm';
 // GET /api/cards/[id] - Get a single card
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  console.log('GET /api/cards/[id] - params:', params);
-  console.log('GET /api/cards/[id] - params.id:', params.id);
-  console.log('GET /api/cards/[id] - typeof params.id:', typeof params.id);
+
 
   const session = await getSession();
-  console.log('GET /api/cards/[id] - session:', session);
-  console.log('GET /api/cards/[id] - session.user:', session?.user);
-  console.log('GET /api/cards/[id] - session.user.sub:', session?.user?.sub);
 
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   const { id } = await params;
 
-  console.log('GET /api/cards/[id] - destructured id:', id);
-  console.log('GET /api/cards/[id] - session.user.sub:', session.user.sub);
   try {
-    console.log('GET /api/cards/[id] - About to query with id:', id, 'userId:', session.user.sub);
     const card = await db.query.cards.findFirst({
       where: and(eq(cards.id, id), eq(cards.userId, session.user.sub)),
     });
@@ -46,8 +38,9 @@ export async function GET(
 // PUT /api/cards/[id] - Update a card
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const session = await getSession();
 
   if (!session) {
@@ -63,6 +56,10 @@ export async function PUT(
       email,
       phone,
       website,
+      cardName,
+      company,
+      department,
+      location,
       profileImage,
       coverImage,
       companyLogo,
@@ -77,22 +74,26 @@ export async function PUT(
       .update(cards)
       .set({
         name,
-        title,
-        bio,
-        email,
-        phone,
-        website,
-        profileImage,
-        coverImage,
-        companyLogo,
-        content,
-        payLinks,
-        theme,
-        customFields,
-        isActive,
+        title: title ?? null,
+        bio: bio ?? null,
+        email: email ?? null,
+        phone: phone ?? null,
+        website: website ?? null,
+        cardName: cardName ?? null,
+        company: company ?? null,
+        department: department ?? null,
+        location: location ?? null,
+        profileImage: profileImage ?? null,
+        coverImage: coverImage ?? null,
+        companyLogo: companyLogo ?? null,
+        content: content ?? null,
+        payLinks: payLinks ?? null,
+        theme: theme ?? null,
+        customFields: customFields ?? null,
+        isActive: isActive ?? true,
         updatedAt: new Date(),
       })
-      .where(and(eq(cards.id, params.id), eq(cards.userId, session.user.sub)))
+      .where(and(eq(cards.id, id), eq(cards.userId, session.user.sub)))
       .returning();
 
     if (!updatedCard) {
@@ -109,8 +110,9 @@ export async function PUT(
 // DELETE /api/cards/[id] - Delete a card
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const session = await getSession();
 
   if (!session) {
@@ -120,7 +122,7 @@ export async function DELETE(
   try {
     const [deletedCard] = await db
       .delete(cards)
-      .where(and(eq(cards.id, params.id), eq(cards.userId, session.user.sub)))
+      .where(and(eq(cards.id, id), eq(cards.userId, session.user.sub)))
       .returning();
 
     if (!deletedCard) {

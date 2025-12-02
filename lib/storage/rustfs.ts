@@ -38,9 +38,15 @@ export async function uploadFile(options: UploadOptions): Promise<string> {
 
     // Return public URL
     return `${process.env.RUSTFS_ENDPOINT}/${BUCKET_NAME}/${key}`;
-  } catch (error) {
+  } catch (error: any) {
     console.error('File upload error:', error);
-    throw new Error('Failed to upload file');
+
+    // Check if it's a parsing error which often indicates HTML response (wrong endpoint)
+    if (error.name === 'XMLParserError' || error.message?.includes('Expected closing tag')) {
+      console.error('Upload failed with XML parsing error. This usually means the storage endpoint returned HTML (e.g. 404/500 page) instead of XML. Check RUSTFS_ENDPOINT.');
+    }
+
+    throw new Error(`Failed to upload file: ${error.message}`);
   }
 }
 

@@ -41,24 +41,24 @@ export default function EditCardPage() {
   const [cardData, setCardData] = useState<CardData>(initialCardData);
   const [userId, setUserId] = useState<string>('');
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        // Fetch current user from API (we can add this endpoint or extract from card owner)
-        const response = await fetch('/api/auth/sync-tokens');
-        if (response.ok) {
-          const data = await response.json();
-          if (data.user?.sub) {
-            setUserId(data.user.sub);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching user:', error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchUserData = async () => {
+  //     try {
+  //       // Fetch current user from API (we can add this endpoint or extract from card owner)
+  //       const response = await fetch('/api/auth/sync-tokens');
+  //       if (response.ok) {
+  //         const data = await response.json();
+  //         if (data.user?.sub) {
+  //           setUserId(data.user.sub);
+  //         }
+  //       }
+  //     } catch (error) {
+  //       console.error('Error fetching user:', error);
+  //     }
+  //   };
 
-    fetchUserData();
-  }, []);
+  //   fetchUserData();
+  // }, []);
 
   useEffect(() => {
     const fetchCardData = async (id: string) => {
