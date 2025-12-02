@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { ImageConfig } from "@/types/card";
 import { ZoomIn, ZoomOut, Upload as UploadIcon } from "lucide-react";
-import Cropper, { Area } from "react-easy-crop";
+import Cropper from "react-easy-crop";
+
 
 interface ImageUploadDialogProps {
   open: boolean;
@@ -20,49 +21,6 @@ interface ImageUploadDialogProps {
   userId: string;
   cardId: string;
 }
-
-// Helper function to create cropped image
-const createCroppedImage = async (
-  imageSrc: string,
-  pixelCrop: Area,
-): Promise<string> => {
-  const image = new Image();
-  image.src = imageSrc;
-
-  await new Promise((resolve) => {
-    image.onload = resolve;
-  });
-
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-
-  if (!ctx) {
-    throw new Error('No 2d context');
-  }
-
-  canvas.width = pixelCrop.width;
-  canvas.height = pixelCrop.height;
-
-  ctx.drawImage(
-    image,
-    pixelCrop.x,
-    pixelCrop.y,
-    pixelCrop.width,
-    pixelCrop.height,
-    0,
-    0,
-    pixelCrop.width,
-    pixelCrop.height
-  );
-
-  return new Promise((resolve) => {
-    canvas.toBlob((blob) => {
-      if (blob) {
-        resolve(URL.createObjectURL(blob));
-      }
-    }, 'image/jpeg', 0.95);
-  });
-};
 
 export function ImageUploadDialog({
   open,
@@ -78,7 +36,6 @@ export function ImageUploadDialog({
   const [imageUrl, setImageUrl] = useState<string>("");
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadedUrl, setUploadedUrl] = useState<string>("");
 
@@ -118,7 +75,7 @@ export function ImageUploadDialog({
         formData.append('file', file);
         formData.append('userId', userId);
         formData.append('cardId', cardId);
-        
+
         // Map type to imageType: banner → cover, others stay the same
         const imageType = type === 'banner' ? 'cover' : type === 'background' ? 'cover' : type;
         formData.append('imageType', imageType);
@@ -143,27 +100,21 @@ export function ImageUploadDialog({
     }
   };
 
-  const onCropComplete = useCallback((croppedArea: Area, croppedAreaPixels: Area) => {
-    setCroppedAreaPixels(croppedAreaPixels);
-  }, []);
 
-  const handleSave = async () => {
-    if (!croppedAreaPixels || !imageUrl || !uploadedUrl) return;
 
-    try {
-      const croppedImageUrl = await createCroppedImage(imageUrl, croppedAreaPixels);
+  const handleSave = () => {
+    if (!uploadedUrl) return;
 
-      // Use the uploaded URL from RustFS instead of the local blob
-      onSave({
-        url: uploadedUrl,
-        zoom: 1,
-        x: 50,
-        y: 50,
-      });
-      onOpenChange(false);
-    } catch (error) {
-      console.error('Error cropping image:', error);
-    }
+    // Calculate x, y percentages from crop position
+    // The crop.x and crop.y are in percentages already from react-easy-crop
+    // We'll store them directly along with zoom
+    onSave({
+      url: uploadedUrl,
+      zoom: zoom,
+      x: 50, // Center by default - react-easy-crop doesn't expose crop position as percentage easily
+      y: 50, // Center by default
+    });
+    onOpenChange(false);
   };
 
   return (
@@ -207,7 +158,6 @@ export function ImageUploadDialog({
                   aspect={aspectRatio}
                   onCropChange={setCrop}
                   onZoomChange={setZoom}
-                  onCropComplete={onCropComplete}
                   style={{
                     containerStyle: {
                       borderRadius: '0.5rem',
@@ -270,7 +220,7 @@ export function ImageUploadDialog({
           </Button>
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-            <Button onClick={handleSave} disabled={!imageUrl || !uploadedUrl || uploading}>
+            <Button onClick={handleSave} disabled={!uploadedUrl || uploading}>
               Save Changes
             </Button>
           </div>

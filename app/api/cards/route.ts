@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
     // Convert data URL to buffer and upload to RustFS
     const qrCodeBuffer = Buffer.from(qrCodeDataUrl.split(',')[1], 'base64');
     const qrCodeKey = `qr-codes/${user.id}/${slug}.png`;
-    const qrCodeUrl = await uploadFile({
+    const { url: qrCodeUrl } = await uploadFile({
       key: qrCodeKey,
       file: qrCodeBuffer,
       contentType: 'image/png',

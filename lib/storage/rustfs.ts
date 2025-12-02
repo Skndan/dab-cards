@@ -22,32 +22,57 @@ export interface UploadOptions {
   metadata?: Record<string, string>;
 }
 
-export async function uploadFile(options: UploadOptions): Promise<string> {
+export async function uploadFile(options: UploadOptions): Promise<{ key: string; url: string }> {
   const { key, file, contentType, metadata } = options;
+  const MAX_RETRIES = 3;
+  let lastError;
 
-  try {
-    await s3Client.send(
-      new PutObjectCommand({
-        Bucket: BUCKET_NAME,
-        Key: key,
-        Body: file,
-        ContentType: contentType,
-        Metadata: metadata,
-      })
-    );
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      await s3Client.send(
+        new PutObjectCommand({
+          Bucket: BUCKET_NAME,
+          Key: key,
+          Body: file,
+          ContentType: contentType,
+          Metadata: metadata,
+        })
+      );
 
-    // Return public URL
-    return `${process.env.RUSTFS_ENDPOINT}/${BUCKET_NAME}/${key}`;
-  } catch (error: any) {
-    console.error('File upload error:', error);
+      // Return key and public URL
+      return {
+        key,
+        url: `${process.env.RUSTFS_ENDPOINT}/${BUCKET_NAME}/${key}`
+      };
+    } catch (error: any) {
+      console.error(`File upload error (attempt ${attempt}/${MAX_RETRIES}):`, error);
+      lastError = error;
 
-    // Check if it's a parsing error which often indicates HTML response (wrong endpoint)
-    if (error.name === 'XMLParserError' || error.message?.includes('Expected closing tag')) {
-      console.error('Upload failed with XML parsing error. This usually means the storage endpoint returned HTML (e.g. 404/500 page) instead of XML. Check RUSTFS_ENDPOINT.');
+      // Check if it's a parsing error which often indicates HTML response
+      if (error.name === 'XMLParserError' || error.message?.includes('Expected closing tag')) {
+        console.error('Upload failed with XML parsing error. Check RUSTFS_ENDPOINT.');
+        console.error('Error details:', {
+          name: error.name,
+          message: error.message,
+          code: error.Code,
+          statusCode: error.$metadata?.httpStatusCode,
+          requestId: error.$metadata?.requestId,
+        });
+
+        // Try to log the raw response if available
+        if (error.$response) {
+          console.error('Raw response body (first 500 chars):', JSON.stringify(error.$response).substring(0, 500));
+        }
+      }
+
+      // Wait before retrying (exponential backoff)
+      if (attempt < MAX_RETRIES) {
+        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+      }
     }
-
-    throw new Error(`Failed to upload file: ${error.message}`);
   }
+
+  throw new Error(`Failed to upload file after ${MAX_RETRIES} attempts: ${lastError?.message}`);
 }
 
 export async function deleteFile(key: string): Promise<void> {

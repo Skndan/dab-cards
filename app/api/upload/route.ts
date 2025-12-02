@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth/session';
-import { uploadFile } from '@/lib/storage/rustfs';
+import { uploadFile, getSignedDownloadUrl } from '@/lib/storage/rustfs';
 
 export async function POST(request: NextRequest) {
   const session = await getSession();
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     const contentType = file.type || 'image/jpeg';
 
     // Upload to RustFS
-    const url = await uploadFile({
+    const { key: uploadedKey } = await uploadFile({
       key,
       file: buffer,
       contentType,
@@ -66,7 +66,13 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ url });
+    // Generate signed URL for immediate preview
+    const signedUrl = await getSignedDownloadUrl(uploadedKey);
+
+    return NextResponse.json({
+      key: uploadedKey,
+      url: signedUrl
+    });
   } catch (error: unknown) {
     console.error('Upload error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Failed to upload file';
