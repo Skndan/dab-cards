@@ -10,9 +10,11 @@ import { User, Link, Palette } from "lucide-react";
 interface CardEditorProps {
   data: CardData;
   onChange: (data: CardData) => void;
+  userId: string;
+  cardId: string;
 }
 
-export function CardEditor({ data, onChange }: CardEditorProps) {
+export function CardEditor({ data, onChange, userId, cardId }: CardEditorProps) {
   return (
     <div className="h-full flex flex-col">
       <Tabs defaultValue="profile" className="flex-1 flex flex-col">
@@ -34,7 +36,7 @@ export function CardEditor({ data, onChange }: CardEditorProps) {
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto p-6">
           <TabsContent value="profile" className="mt-0 space-y-6">
-            <ProfileEditor data={data} onChange={onChange} />
+            <ProfileEditor data={data} onChange={onChange} userId={userId} cardId={cardId} />
           </TabsContent>
 
           <TabsContent value="links" className="mt-0 space-y-6">

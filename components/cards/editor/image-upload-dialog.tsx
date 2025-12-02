@@ -16,6 +16,9 @@ interface ImageUploadDialogProps {
   currentImage?: string | ImageConfig;
   onSave: (config: ImageConfig) => void;
   aspectRatio?: number; // 1 for square, 16/9 for cover
+  type: 'profile' | 'banner' | 'logo' | 'background';
+  userId: string;
+  cardId: string;
 }
 
 // Helper function to create cropped image
@@ -68,11 +71,16 @@ export function ImageUploadDialog({
   currentImage,
   onSave,
   aspectRatio = 1,
+  type,
+  userId,
+  cardId,
 }: ImageUploadDialogProps) {
   const [imageUrl, setImageUrl] = useState<string>("");
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadedUrl, setUploadedUrl] = useState<string>("");
 
   useEffect(() => {
     if (typeof currentImage === 'string') {
@@ -91,9 +99,10 @@ export function ImageUploadDialog({
     }
   }, [currentImage, open]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Show preview immediately
       const reader = new FileReader();
       reader.onload = () => {
         setImageUrl(reader.result as string);
@@ -101,6 +110,36 @@ export function ImageUploadDialog({
         setCrop({ x: 0, y: 0 });
       };
       reader.readAsDataURL(file);
+
+      // Upload to API
+      try {
+        setUploading(true);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('userId', userId);
+        formData.append('cardId', cardId);
+        
+        // Map type to imageType: banner → cover, others stay the same
+        const imageType = type === 'banner' ? 'cover' : type === 'background' ? 'cover' : type;
+        formData.append('imageType', imageType);
+
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error('Upload failed');
+        }
+
+        const { url } = await response.json();
+        setUploadedUrl(url);
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        alert('Failed to upload image. Please try again.');
+      } finally {
+        setUploading(false);
+      }
     }
   };
 
@@ -109,14 +148,15 @@ export function ImageUploadDialog({
   }, []);
 
   const handleSave = async () => {
-    if (!croppedAreaPixels || !imageUrl) return;
+    if (!croppedAreaPixels || !imageUrl || !uploadedUrl) return;
 
     try {
       const croppedImageUrl = await createCroppedImage(imageUrl, croppedAreaPixels);
 
+      // Use the uploaded URL from RustFS instead of the local blob
       onSave({
-        url: croppedImageUrl,
-        zoom: 1, // Reset since we're saving cropped image
+        url: uploadedUrl,
+        zoom: 1,
         x: 50,
         y: 50,
       });
@@ -139,8 +179,12 @@ export function ImageUploadDialog({
               <div className="text-center space-y-4">
                 <UploadIcon className="h-12 w-12 mx-auto text-muted-foreground" />
                 <div>
-                  <Button variant="outline" onClick={() => document.getElementById('file-upload')?.click()}>
-                    Upload Image
+                  <Button
+                    variant="outline"
+                    onClick={() => document.getElementById('file-upload')?.click()}
+                    disabled={uploading}
+                  >
+                    {uploading ? 'Uploading...' : 'Upload Image'}
                   </Button>
                   <p className="text-xs text-muted-foreground mt-2">PNG, JPG, or WEBP (max. 5MB)</p>
                 </div>
@@ -226,7 +270,9 @@ export function ImageUploadDialog({
           </Button>
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-            <Button onClick={handleSave} disabled={!imageUrl}>Save Changes</Button>
+            <Button onClick={handleSave} disabled={!imageUrl || !uploadedUrl || uploading}>
+              Save Changes
+            </Button>
           </div>
         </DialogFooter>
       </DialogContent>

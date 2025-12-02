@@ -19,9 +19,11 @@ import {
 interface ProfileEditorProps {
   data: CardData;
   onChange: (data: CardData) => void;
+  userId: string;
+  cardId: string;
 }
 
-export function ProfileEditor({ data, onChange }: ProfileEditorProps) {
+export function ProfileEditor({ data, onChange, userId, cardId }: ProfileEditorProps) {
   const [activeUploadField, setActiveUploadField] = useState<keyof CardData | 'backgroundImageUrl' | null>(null);
   const [layoutDialogOpen, setLayoutDialogOpen] = useState(false);
 
@@ -59,6 +61,14 @@ export function ProfileEditor({ data, onChange }: ProfileEditorProps) {
     return 1;
   };
 
+  const getImageType = (): 'profile' | 'banner' | 'logo' | 'background' => {
+    if (activeUploadField === 'profileImage') return 'profile';
+    if (activeUploadField === 'coverImage') return 'banner';
+    if (activeUploadField === 'companyLogo') return 'logo';
+    if (activeUploadField === 'backgroundImageUrl') return 'background';
+    return 'profile'; // default
+  };
+
   return (
     <div className="space-y-6">
       <ImageUploadDialog
@@ -77,6 +87,9 @@ export function ProfileEditor({ data, onChange }: ProfileEditorProps) {
         ) as string | ImageConfig : undefined}
         onSave={handleImageSave}
         aspectRatio={getAspectRatio()}
+        type={getImageType()}
+        userId={userId}
+        cardId={cardId}
       />
 
       {/* Card Label */}

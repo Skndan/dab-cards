@@ -39,6 +39,26 @@ export default function EditCardPage() {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [cardData, setCardData] = useState<CardData>(initialCardData);
+  const [userId, setUserId] = useState<string>('');
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        // Fetch current user from API (we can add this endpoint or extract from card owner)
+        const response = await fetch('/api/auth/sync-tokens');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.user?.sub) {
+            setUserId(data.user.sub);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   useEffect(() => {
     const fetchCardData = async (id: string) => {
@@ -221,7 +241,7 @@ export default function EditCardPage() {
         <div className="flex flex-1 overflow-hidden">
           {/* Editor Panel (Left) */}
           <div className="w-1/2 overflow-y-auto border-r bg-background">
-            <CardEditor data={cardData} onChange={setCardData} />
+            <CardEditor data={cardData} onChange={setCardData} userId={userId} cardId={id} />
           </div>
 
           {/* Preview Panel (Right) */}

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth/session';
-import { uploadImage } from '@/lib/storage/upload';
+import { uploadFile } from '@/lib/storage/rustfs';
 
 export async function POST(request: NextRequest) {
   const session = await getSession();
@@ -12,31 +12,65 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
-    const type = formData.get('type') as 'profile' | 'banner' | 'logo' | 'background' | 'event';
+    const userId = session.user.sub;
+    const cardId = formData.get('cardId') as string;
+    const imageType = formData.get('imageType') as 'profile' | 'cover' | 'logo';
 
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    if (!type) {
-      return NextResponse.json({ error: 'No type provided' }, { status: 400 });
+    if (!userId) {
+      return NextResponse.json({ error: 'No userId provided' }, { status: 400 });
+    }
+
+    if (!cardId) {
+      return NextResponse.json({ error: 'No cardId provided' }, { status: 400 });
+    }
+
+    if (!imageType) {
+      return NextResponse.json({ error: 'No imageType provided' }, { status: 400 });
+    }
+
+    // Validate imageType
+    if (!['profile', 'cover', 'logo'].includes(imageType)) {
+      return NextResponse.json({ error: 'Invalid imageType. Must be profile, cover, or logo' }, { status: 400 });
     }
 
     // Convert File to Buffer
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Upload image
-    const result = await uploadImage({
+    // Extract file extension from filename
+    const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+
+    // Generate timestamp
+    const timestamp = Date.now();
+
+    // Generate RustFS key: cards/{userId}/{cardId}/{imageType}-{timestamp}.{ext}
+    const key = `cards/${userId}/${cardId}/${imageType}-${timestamp}.${fileExtension}`;
+
+    // Get content type from file
+    const contentType = file.type || 'image/jpeg';
+
+    // Upload to RustFS
+    const url = await uploadFile({
+      key,
       file: buffer,
-      userId: session.user.sub,
-      type,
+      contentType,
+      metadata: {
+        userId,
+        cardId,
+        imageType,
+        originalName: file.name,
+      },
     });
 
-    return NextResponse.json(result);
-  } catch (error: any) {
+    return NextResponse.json({ url });
+  } catch (error: unknown) {
     console.error('Upload error:', error);
-    return NextResponse.json({ error: error.message || 'Failed to upload file' }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : 'Failed to upload file';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
 

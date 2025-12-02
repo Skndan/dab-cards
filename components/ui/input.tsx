@@ -3,6 +3,15 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 
 function Input({ className, type, ...props }: React.ComponentProps<"input">) {
+  // Debug logging for null value prop
+  if (props.value === null) {
+    console.warn('Input component received null value prop. Converting to empty string.', {
+      type,
+      className,
+      props: { ...props, value: '[NULL]' }
+    });
+  }
+
   return (
     <input
       type={type}
@@ -14,6 +23,7 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
         className
       )}
       {...props}
+      value={props.value === null ? '' : props.value}
     />
   )
 }
